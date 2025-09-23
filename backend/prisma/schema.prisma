@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  phone     String?
+  password  String
+  role      String    @default("USER") // USER or ADMIN
+  balance   Float     @default(0)
+  rentals   Rental[]
+  balanceTransactions BalanceTransaction[]
+  createdAt DateTime  @default(now())
+}
+
+model BikeStation {
+  id        Int      @id @default(autoincrement())
+  name      String
+  latitude  Float
+  longitude Float
+  capacity  Int
+  bikes     Bike[]
+}
+
+model Bike {
+  id        Int      @id @default(autoincrement())
+  stationId Int
+  status    String   @default("AVAILABLE") // AVAILABLE, IN_USE, MAINTENANCE
+  currentLocationLat Float
+  currentLocationLng Float
+  station   BikeStation @relation(fields: [stationId], references: [id])
+  rentals   Rental[]
+  locations BikeLocation[]
+}
+
+model BikeLocation {
+  id        Int      @id @default(autoincrement())
+  bikeId    Int
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  bike      Bike     @relation(fields: [bikeId], references: [id])
+}
+
+model Rental {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  bikeId    Int
+  startTime DateTime
+  endTime   DateTime?
+  totalCost Float?
+  status    String   @default("ONGOING") // ONGOING, COMPLETED
+  user      User     @relation(fields: [userId], references: [id])
+  bike      Bike     @relation(fields: [bikeId], references: [id])
+}
+
+model BalanceTransaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  type      String // RECHARGE, DEDUCTION
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id])
+}
