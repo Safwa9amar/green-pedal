@@ -35,15 +35,13 @@ const AppNavigator = () => {
   }
 
   return (
-    <NavigationContainer>
-      <AppStack.Navigator headerMode="none">
+      <AppStack.Navigator >
         {isLoggedIn ? (
           <AppStack.Screen name="App" component={MainNavigator} />
         ) : (
           <AppStack.Screen name="Auth" component={AuthNavigator} />
         )}
       </AppStack.Navigator>
-    </NavigationContainer>
   );
 };
 
