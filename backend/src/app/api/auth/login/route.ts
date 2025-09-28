@@ -1,9 +1,8 @@
-
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
@@ -13,27 +12,48 @@ const loginSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  console.log("asdkjkljkljklj");
+
   try {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return NextResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 400 }
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return NextResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 400 }
+      );
     }
 
-    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" }
+    );
 
     return NextResponse.json({ token });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: error.errors }, { status: 400 });
+      return NextResponse.json({ message: error.cause }, { status: 400 });
     }
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
+}
+
+export function GET() {
+  return NextResponse.json({
+    name: "ahzam",
+  });
 }

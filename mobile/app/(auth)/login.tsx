@@ -5,6 +5,7 @@ import { TextInput, Button, Text } from "react-native-paper";
 import * as Google from "expo-auth-session/providers/google";
 import * as AuthSession from "expo-auth-session";
 import { useAuthStore } from "@/src/store";
+import { login as apiLogin } from "@/api";
 
 const LoginScreen = () => {
   const router = useRouter();
@@ -26,17 +27,18 @@ const LoginScreen = () => {
   }, [response]);
 
   const handleLogin = async () => {
-    login(
-      {
-        id: 1,
-        balance: 23,
-        email: "asdad@asdsad",
-        name: "hamza safwan",
-        role: "user",
-        phone: "0674020244",
-      },
-      "asdasd"
-    );
+    await fetch("http://localhost:3000/api/auth/login");
+    // login(
+    //   {
+    //     id: 1,
+    //     balance: 23,
+    //     email: "asdad@asdsad",
+    //     name: "hamza safwan",
+    //     role: "user",
+    //     phone: "0674020244",
+    //   },
+    //   "asdasd"
+    // );
   };
   useEffect(() => {
     isAuthenticated && router.push("/");
