@@ -1,131 +1,113 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import axios from "axios";
 
-export default function VerificationScreen({ navigation, route }: any) {
-  const [code, setCode] = useState(["", "", "", ""]);
+const VerificationScreen = () => {
+  const router = useRouter();
+  const { email } = useLocalSearchParams();
+  const [code, setCode] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (value: string, idx: number) => {
-    if (/^\d?$/.test(value)) {
-      const newCode = [...code];
-      newCode[idx] = value;
-      setCode(newCode);
-      // Focus next input if value entered
-      if (value && idx < 3) {
-        const nextInput = `codeInput${idx + 1}`;
-        // @ts-ignore
-        refs[nextInput]?.focus();
+  const handleVerify = async () => {
+    setMsg(null);
+    setIsSubmitting(true);
+    try {
+      const res = await axios.post(
+        `${
+          process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.9:3000/api"
+        }/auth/verify-email`,
+        { email, code }
+      );
+      setMsg(res.data.message || "Email confirmed! You can now log in.");
+      setTimeout(() => router.replace("/login"), 1500);
+    } catch (error: any) {
+      let errMsg = "Verification failed. Please try again.";
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errMsg = error.response.data.message;
       }
+      setMsg(errMsg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleContinue = () => {
-    // TODO: Implement verification logic
-    navigation.navigate("Login");
-  };
-
-  // Refs for input focus
-  const refs: any = {};
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#A5D6A7" }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Verification</Text>
-      </View>
-      <View style={styles.formContainer}>
-        <View style={styles.codeRow}>
-          {[0, 1, 2, 3].map((idx) => (
-            <TextInput
-              key={idx}
-              mode="outlined"
-              keyboardType="number-pad"
-              maxLength={1}
-              value={code[idx]}
-              onChangeText={(val) => handleChange(val, idx)}
-              textAlign="center"
-            />
-          ))}
-        </View>
-        <Text style={styles.infoText}>
-          Enter the code sent to your phone number
-        </Text>
-        <Button
-          mode="contained"
-          onPress={handleContinue}
-          style={styles.button}
-          labelStyle={styles.buttonText}
-        >
-          Continue
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+    <View style={styles.formContainer}>
+      <Text style={styles.title}>Email Verification</Text>
+      <Text style={styles.infoText}>
+        Enter the 6-digit code sent to your email to confirm your account.
+      </Text>
+      <TextInput
+        mode="flat"
+        label="Confirmation Code"
+        value={code}
+        onChangeText={setCode}
+        keyboardType="number-pad"
+        style={styles.input}
+        maxLength={6}
+      />
+      {msg && <Text style={styles.errorText}>{msg}</Text>}
+      <Button
+        mode="contained"
+        onPress={handleVerify}
+        style={styles.button}
+        loading={isSubmitting}
+        disabled={isSubmitting || code.length !== 6}
+      >
+        Verify
+      </Button>
+    </View>
   );
-}
+};
+
+export default VerificationScreen;
 
 const styles = StyleSheet.create({
-  header: {
-    paddingTop: 80,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    backgroundColor: "#A5D6A7",
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+  formContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderTopStartRadius: 50,
+    padding: 32,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
   },
   title: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#3A0A3A",
-  },
-  formContainer: {
-    backgroundColor: "#fff",
-    margin: 24,
-    borderRadius: 40,
-    padding: 32,
-    marginTop: -40,
-    alignItems: "center",
-  },
-  codeRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 24,
-  },
-  codeInput: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#eee",
-    fontSize: 32,
-    marginHorizontal: 8,
-    backgroundColor: "#f8f8f8",
-    color: "#3A0A3A",
-  },
-  infoText: {
-    color: "#3A0A3A",
-    fontSize: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     textAlign: "center",
   },
-  button: {
-    backgroundColor: "#00F6FF",
-    borderRadius: 40,
-    paddingVertical: 20,
-    paddingHorizontal: 60,
-    alignItems: "center",
-    marginTop: 8,
+  infoText: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 16,
+    textAlign: "center",
   },
-  buttonText: {
-    fontSize: 28,
-    color: "#3A0A3A",
-    fontWeight: "bold",
+  input: {
+    fontSize: 18,
+    marginBottom: 16,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+  },
+  button: {
+    borderRadius: 40,
+    marginTop: 10,
+    paddingVertical: 2,
+  },
+  errorText: {
+    color: "#FF3B5C",
+    fontSize: 18,
+    marginBottom: 8,
+    textAlign: "center",
   },
 });

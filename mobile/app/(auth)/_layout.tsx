@@ -55,6 +55,10 @@ const Authentication = () => {
       >
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
+        <Stack.Screen
+          name="forgot-password"
+          options={{ title: "Reset Password" }}
+        />
       </Stack>
     </KeyboardAvoidingView>
   );

@@ -1,9 +1,12 @@
-import { useNavigation, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { Keyboard, View, Text, StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
+import { useRouter } from "expo-router";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
+import { register as apiRegister, login as apiLogin } from "@/api";
+import { useAuthStore } from "@/src/store";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,54 +23,158 @@ const RegisterScreen = () => {
       // Example: router.push('/(tabs)');
     }
   }, [response]);
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
 
-  const handleRegister = async () => {
-    // TODO: Implement register logic
-    if (email === "dashington@mail.com") {
-      setEmailError("This email is already registered!");
-      return;
+  const router = useRouter();
+  const { login } = useAuthStore();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    clearErrors,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+  const [apiMsg, setApiMsg] = React.useState<string | null>(null);
+
+  const onSubmit = async (data: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
+    Keyboard.dismiss();
+    setApiMsg(null);
+    try {
+      const response = await apiRegister({
+        username: data.name,
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
+      // If backend returns retry flag, show retry message and do not redirect
+      if (response.data && response.data.retry) {
+        setApiMsg(
+          response.data.message ||
+            "Failed to send confirmation email. Please try again."
+        );
+        return;
+      }
+      setApiMsg(
+        (response.data && response.data.message) ||
+          "Registration successful! Please verify your email."
+      );
+      setTimeout(() => {
+        router.replace({
+          pathname: "/verification",
+          params: { email: data.email },
+        });
+      }, 1200);
+    } catch (error: any) {
+      let msg = "Registration failed. Please try again.";
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        msg = error.response.data.message;
+      }
+      setApiMsg(msg);
     }
-    setEmailError("");
-    router.push("./register");
   };
 
   return (
     <View style={styles.formContainer}>
-      <TextInput
-        mode="flat"
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        style={styles.input}
+      {apiMsg && <Text style={styles.errorText}>{apiMsg}</Text>}
+      <Controller
+        control={control}
+        name="email"
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Invalid email address",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            mode="flat"
+            label="Email"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            autoCapitalize="none"
+            style={styles.input}
+            error={!!errors.email}
+          />
+        )}
       />
-      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-      <TextInput
-        mode="flat"
-        label="Name"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
+      {errors.email && (
+        <Text style={styles.errorText}>{errors.email.message}</Text>
+      )}
+      <Controller
+        control={control}
+        name="name"
+        rules={{
+          required: "Name is required",
+          minLength: {
+            value: 2,
+            message: "Name must be at least 2 characters",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            mode="flat"
+            label="Name"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            style={styles.input}
+            error={!!errors.name}
+          />
+        )}
       />
-      <TextInput
-        mode="flat"
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
+      {errors.name && (
+        <Text style={styles.errorText}>{errors.name.message}</Text>
+      )}
+      <Controller
+        control={control}
+        name="password"
+        rules={{
+          required: "Password is required",
+          minLength: {
+            value: 6,
+            message: "Password must be at least 6 characters",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            mode="flat"
+            label="Password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            secureTextEntry
+            style={styles.input}
+            error={!!errors.password}
+          />
+        )}
       />
+      {errors.password && (
+        <Text style={styles.errorText}>{errors.password.message}</Text>
+      )}
       <Button
         mode="contained"
-        onPress={handleRegister}
+        onPress={handleSubmit(onSubmit)}
         style={styles.button}
         theme={{ colors: { primary: "#00F5FF" } }}
         labelStyle={styles.buttonText}
+        loading={isSubmitting}
+        disabled={isSubmitting}
       >
         Sign up
       </Button>
@@ -130,7 +237,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "#FF3B5C",
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 8,
   },
 });

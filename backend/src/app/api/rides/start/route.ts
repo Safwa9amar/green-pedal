@@ -9,16 +9,31 @@ const startRideSchema = z.object({
   bikeId: z.number(),
 });
 
+// Helper to add CORS headers
+function withCORS(response: NextResponse) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  return response;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      );
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      );
     }
 
     const body = await req.json();
@@ -26,9 +41,8 @@ export async function POST(req: NextRequest) {
 
     const bike = await prisma.bike.findUnique({ where: { id: bikeId } });
     if (!bike || bike.status !== "AVAILABLE") {
-      return NextResponse.json(
-        { message: "Bike not available" },
-        { status: 400 }
+      return withCORS(
+        NextResponse.json({ message: "Bike not available" }, { status: 400 })
       );
     }
 

@@ -4,16 +4,37 @@ import { verifyToken } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
+// Helper to add CORS headers
+function withCORS(response: NextResponse) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  return response;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json(
+          { message: "You must be logged in to view your profile." },
+          { status: 401 }
+        )
+      );
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json(
+          { message: "Session expired or invalid. Please log in again." },
+          { status: 401 }
+        )
+      );
     }
 
     const user = await prisma.user.findUnique({
@@ -22,14 +43,25 @@ export async function GET(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return withCORS(
+        NextResponse.json(
+          {
+            message:
+              "User not found. Please contact support if this is unexpected.",
+          },
+          { status: 404 }
+        )
+      );
     }
 
-    return NextResponse.json(user);
-  } catch {
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+    return withCORS(NextResponse.json(user));
+  } catch (error) {
+    console.log(error);
+    return withCORS(
+      NextResponse.json(
+        { message: "Oops! Something went wrong. Please try again later." },
+        { status: 500 }
+      )
     );
   }
 }

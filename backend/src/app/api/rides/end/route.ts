@@ -9,16 +9,31 @@ const endRideSchema = z.object({
   rentalId: z.number(),
 });
 
+// Helper to add CORS headers
+function withCORS(response: NextResponse) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  return response;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      );
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return withCORS(
+        NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      );
     }
 
     const body = await req.json();
@@ -30,7 +45,9 @@ export async function POST(req: NextRequest) {
       rental.status !== "ONGOING" ||
       rental.userId !== decoded.userId
     ) {
-      return NextResponse.json({ message: "Invalid rental" }, { status: 400 });
+      return withCORS(
+        NextResponse.json({ message: "Invalid rental" }, { status: 400 })
+      );
     }
 
     const endTime = new Date();
@@ -57,14 +74,15 @@ export async function POST(req: NextRequest) {
       data: { balance: { decrement: totalCost } },
     });
 
-    return NextResponse.json(updatedRental);
+    return withCORS(NextResponse.json(updatedRental));
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: error.cause }, { status: 400 });
+      return withCORS(
+        NextResponse.json({ message: error.cause }, { status: 400 })
+      );
     }
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+    return withCORS(
+      NextResponse.json({ message: "Internal server error" }, { status: 500 })
     );
   }
 }
