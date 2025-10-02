@@ -9,7 +9,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
+  const AuthStorage: any = await AsyncStorage.getItem("auth-storage");
+  const token = JSON.parse(AuthStorage)?.state?.token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -67,4 +68,14 @@ export const endRide = (data: EndRideData) =>
 export const getRideHistory = () => api.get("/rides/history");
 export const getAvailableBikes = () => api.get("/bikes");
 
+interface UploadCardIdResponse {
+  url: string;
+}
+
+export const uploadIdCard = (data: FormData | null) =>
+  api.post<UploadCardIdResponse>("/users/upload-id-card", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 export default api;

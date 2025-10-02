@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "green-pedal",
+    "slug": "green-pedal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "greenpedal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -27,9 +27,11 @@
       },
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.astro0666.mobile"
+      "package": "com.astro.greenpedal"
     },
     "web": {
       "output": "static",
@@ -40,7 +42,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -56,7 +58,7 @@
           "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
         }
       ],
-       [
+      [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
@@ -72,8 +74,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "237d6d6a-2dff-4b9f-b006-e3c1a3c344d6"
+        "projectId": "af93077e-94ad-4537-9e4a-d6aa8b75fd4c"
       }
-    }
+    },
+    "owner": "astro0666"
   }
 }

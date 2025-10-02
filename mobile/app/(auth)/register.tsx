@@ -3,27 +3,11 @@ import { Keyboard, View, Text, StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
+// Removed Google Auth imports
 import { register as apiRegister, login as apiLogin } from "@/api";
 import { useAuthStore } from "@/src/store";
 
-WebBrowser.maybeCompleteAuthSession();
-
 const RegisterScreen = () => {
-  // Google Auth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_ID_CLEINT,
-  });
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { authentication } = response;
-      // TODO: Send authentication.accessToken to your backend for registration/login
-      // Example: router.push('/(tabs)');
-    }
-  }, [response]);
-
   const router = useRouter();
   const { login } = useAuthStore();
   const {
@@ -177,31 +161,6 @@ const RegisterScreen = () => {
         disabled={isSubmitting}
       >
         Sign up
-      </Button>
-      <Text
-        style={{
-          marginTop: 20,
-          textAlign: "center",
-          color: "#888",
-          fontSize: 16,
-        }}
-      >
-        Or
-      </Text>
-      <Button
-        mode="outlined"
-        icon="google"
-        onPress={() => promptAsync()}
-        style={{ marginTop: 16, borderRadius: 40 }}
-        disabled={!request}
-        theme={{
-          colors: {
-            primary: "#A5D6A7",
-            outline: "#A5D6A7",
-          },
-        }}
-      >
-        Sign up with Google
       </Button>
     </View>
   );

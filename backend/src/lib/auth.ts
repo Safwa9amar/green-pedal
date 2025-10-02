@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 interface DecodedToken {
-  userId: number;
+  userId: string;
   role: string;
 }
 

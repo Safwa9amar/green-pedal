@@ -2,8 +2,6 @@ import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { View, StyleSheet, Image, Keyboard } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import * as Google from "expo-auth-session/providers/google";
-import * as AuthSession from "expo-auth-session";
 import { useAuthStore } from "@/src/store";
 import { login as apiLogin } from "@/api";
 import { useForm, Controller } from "react-hook-form";
@@ -19,19 +17,6 @@ const LoginScreen = () => {
     defaultValues: { email: "", password: "" },
     mode: "onTouched",
   });
-
-  // Google Auth
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_ID_CLEINT,
-  });
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { authentication } = response;
-      // TODO: Send authentication.accessToken to your backend for login
-      // Example: router.push('/(tabs)');
-    }
-  }, [response]);
 
   const [apiMsg, setApiMsg] = React.useState<string | null>(null);
   const onSubmit = async (data: { email: string; password: string }) => {
@@ -55,11 +40,6 @@ const LoginScreen = () => {
         if (profileRes.ok) {
           const user = await profileRes.json();
           login(user, token);
-        } else {
-          login(
-            { id: 0, name: "", email: data.email, role: "user", balance: 0 },
-            token
-          );
         }
         return;
       }
@@ -167,43 +147,20 @@ const LoginScreen = () => {
       >
         Log in
       </Button>
-      <Text
-        style={{
-          marginTop: 12,
-          textAlign: "center",
-          color: "#888",
-          fontSize: 15,
-          textDecorationLine: "underline",
-        }}
-        onPress={() => router.push("/forgot-password")}
-      >
-        Forgot password?
-      </Text>
-      <Text
-        style={{
-          marginTop: 20,
-          textAlign: "center",
-          color: "#888",
-          fontSize: 16,
-        }}
-      >
-        Or
-      </Text>
-      <Button
-        mode="outlined"
-        icon="google"
-        onPress={() => promptAsync()}
-        style={{ marginTop: 16 }}
-        disabled={!request}
-        theme={{
-          colors: {
-            primary: "#A5D6A7",
-            outline: "#A5D6A7",
-          },
-        }}
-      >
-        Log in with Google
-      </Button>
+      {!isSubmitting && (
+        <Text
+          style={{
+            marginTop: 12,
+            textAlign: "center",
+            color: "#888",
+            fontSize: 15,
+            textDecorationLine: "underline",
+          }}
+          onPress={() => router.push("/forgot-password")}
+        >
+          Forgot password?
+        </Text>
+      )}
     </View>
   );
 };

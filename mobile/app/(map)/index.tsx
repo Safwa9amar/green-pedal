@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useColorScheme } from "react-native";
 import { useBikeStore, useRideStore } from "../../src/store";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -8,8 +8,12 @@ import BikeInfoCard from "@/components/BikeInfoCard";
 import { useGlobalSearchParams } from "expo-router/build/hooks";
 import { useUserLocation } from "@/src/store/useUserLocation";
 import { fetchRouteORS } from "@/src/services/ors";
+import { Avatar } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
+  const navigation = useNavigation() as any;
+
   const { setSelectedBike, selectedBike } = useBikeStore();
   const {
     location: userLocation,
@@ -84,7 +88,15 @@ export default function HomeScreen() {
       )}
       <View style={styles.container}>
         {/* Show RideInfo only if riding, otherwise show BikeInfoCard if a bike is selected */}
-
+        <TouchableOpacity
+          style={styles.menu}
+          onPress={() => navigation.openDrawer()}
+        >
+          <Avatar.Image
+            size={56}
+            source={require("@/assets/images/profile.png")}
+          />
+        </TouchableOpacity>
         <MapView
           style={styles.map}
           showsUserLocation={true}
@@ -142,6 +154,12 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 12,
+  },
+  menu: {
+    position: "absolute",
+    top: 10,
+    left: 5,
+    zIndex: 9999,
   },
   title: {
     fontSize: 28,

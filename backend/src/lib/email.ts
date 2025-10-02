@@ -2,15 +2,13 @@ import nodemailer from "nodemailer";
 
 export async function sendConfirmationEmail(to: string, code: string) {
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
+    host: "smtp.ethereal.email",
+    port: 587,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: "theresa53@ethereal.email",
+      pass: "ybZfcU5kmh2nDrgqPw",
     },
   });
-
   const mailOptions = {
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to,

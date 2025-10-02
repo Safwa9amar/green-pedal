@@ -3,12 +3,15 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone?: string;
   role: string;
   balance: number;
+  photo: string;
+  idCardPhotoUrl?: string;
+  idCardVerified?: boolean;
 }
 
 interface AuthState {
@@ -27,11 +30,16 @@ interface AuthState {
   // TEMP: mock login toggle
 }
 
+export interface AuthStorage {
+  user: object;
+  token: string;
+  isAuthenticated: boolean;
+}
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: "demo-token",
+      token: null,
       isAuthenticated: false,
       isLoading: false,
 

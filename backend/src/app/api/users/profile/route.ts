@@ -6,12 +6,6 @@ const prisma = new PrismaClient();
 
 // Helper to add CORS headers
 function withCORS(response: NextResponse) {
-  response.headers.set("Access-Control-Allow-Origin", "*");
-  response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
   return response;
 }
 
@@ -39,7 +33,16 @@ export async function GET(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, name: true, email: true, role: true, balance: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        balance: true,
+        idCardPhoto: true,
+        idCardPhotoUrl: true,
+        idCardVerified: true,
+      },
     });
 
     if (!user) {

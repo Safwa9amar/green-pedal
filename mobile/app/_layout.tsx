@@ -1,18 +1,24 @@
 import { Stack, useRouter } from "expo-router";
 import { ThemeProvider } from "@react-navigation/native";
-import { useColorScheme } from "react-native";
+import {
+  StatusBar,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 import { useEffect } from "react";
 import { useAuthStore } from "../src/store/useAuthStore";
 import { useAppLaunchStore } from "../src/store/useAppLaunchStore";
 import { darkTheme, defaultTheme } from "@/constants/theme";
 import CustomDrawer from "@/components/Drawer";
 import { Drawer } from "expo-router/drawer";
+import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { isAuthenticated, isLoading, user, logout } = useAuthStore();
   const { isFirstLaunch, checkFirstLaunch } = useAppLaunchStore();
-
+  const router = useRouter();
   // Only check first launch if not already determined
   useEffect(() => {
     if (isFirstLaunch === null) {
@@ -50,6 +56,7 @@ export default function RootLayout() {
   // Authenticated: show main app drawer
   return (
     <ThemeProvider value={colorScheme === "dark" ? darkTheme : defaultTheme}>
+      <StatusBar />
       <Drawer
         drawerContent={(props) => (
           <CustomDrawer
@@ -69,6 +76,14 @@ export default function RootLayout() {
           options={{
             headerShown: true,
             headerTitle: "Find stations",
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ flexDirection: "row", gap: 5, marginHorizontal: 10 }}
+              >
+                <Ionicons name="arrow-back-outline" size={24} color="black" />
+              </TouchableOpacity>
+            ),
           }}
           name="(map)"
         />
