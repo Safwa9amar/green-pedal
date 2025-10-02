@@ -56,12 +56,20 @@ model BikeStation {
 model Bike {
   id                 Int            @id @default(autoincrement())
   stationId          Int
-  status             String         @default("AVAILABLE") // AVAILABLE, IN_USE, MAINTENANCE
+  status             BikeStatus     @default(AVAILABLE)
   currentLocationLat Float
   currentLocationLng Float
+  stationName        String?
+  batteryLevel       String?
   station            BikeStation    @relation(fields: [stationId], references: [id])
   rentals            Rental[]
   locations          BikeLocation[]
+}
+
+enum BikeStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
 }
 
 model BikeLocation {

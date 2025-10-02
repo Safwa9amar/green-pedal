@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const token: any = req.headers.get("authorization")?.split(" ")[1];
 
   if (!token) return NextResponse.json({ success: false }, { status: 401 });
