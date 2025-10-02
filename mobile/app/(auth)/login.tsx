@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import { View, StyleSheet, Image, Keyboard } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
 import { useAuthStore } from "@/src/store";
-import { login as apiLogin } from "@/api";
+import { login as apiLogin, getProfile } from "@/api";
 import { useForm, Controller } from "react-hook-form";
 
 const LoginScreen = () => {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuthStore();
+  const { login, isAuthenticated, setToken } = useAuthStore();
   const {
     control,
     handleSubmit,
@@ -30,15 +30,12 @@ const LoginScreen = () => {
       });
       // If login is successful
       const { token } = response.data || response;
+      setToken(token);
+
       if (token) {
-        const profileRes = await fetch(
-          `${
-            process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.9:3000/api"
-          }/users/profile`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (profileRes.ok) {
-          const user = await profileRes.json();
+        const profileRes = await getProfile();
+        if (profileRes.status === 200) {
+          const user = profileRes.data;
           login(user, token);
         }
         return;

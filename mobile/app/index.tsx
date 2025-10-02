@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, Button, Text } from "react-native-paper";
+import { Avatar, Text } from "react-native-paper";
 import WeatherCard from "@/components/WeatherCard";
 import BikeCard from "@/components/StationCard";
 import { useTheme } from "@react-navigation/native";

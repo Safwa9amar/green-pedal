@@ -13,10 +13,12 @@ import { darkTheme, defaultTheme } from "@/constants/theme";
 import CustomDrawer from "@/components/Drawer";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import { getProfile } from "@/api";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { isAuthenticated, isLoading, user, logout } = useAuthStore();
+  const { isAuthenticated, isLoading, user, logout, login, token } =
+    useAuthStore();
   const { isFirstLaunch, checkFirstLaunch } = useAppLaunchStore();
   const router = useRouter();
   // Only check first launch if not already determined

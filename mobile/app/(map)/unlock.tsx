@@ -4,7 +4,7 @@ import { Text } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useAuthStore, User } from "@/src/store";
 import { useRouter } from "expo-router";
-import { uploadIdCard } from "@/api";
+import { getProfile, uploadIdCard } from "@/api";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
 
@@ -12,7 +12,7 @@ const { width } = Dimensions.get("window");
 const SCAN_SIZE = width * 0.7;
 
 export default function UnlockBike() {
-  const { user } = useAuthStore();
+  const { user, login, token } = useAuthStore();
   const { idCardVerified } = user as User;
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -29,7 +29,7 @@ export default function UnlockBike() {
     if (!result.canceled && result.assets.length > 0) {
       let photo = result.assets[0].uri;
       let type = result.assets[0].mimeType;
-      await handleUpload(photo, type);
+      let res = await handleUpload(photo, type);
     }
   };
 
@@ -69,6 +69,11 @@ export default function UnlockBike() {
 
       if (res.status === 200) {
         alert("Identity card successfully uploaded ✅");
+        const profileRes = await getProfile();
+        if (profileRes.status === 200) {
+          const user = profileRes.data;
+          token && login(user, token);
+        }
       } else {
         const errorText = res.data;
         alert("Failed to upload. " + errorText);
@@ -76,18 +81,17 @@ export default function UnlockBike() {
     } catch (err) {
       setUploading(false);
       console.error(err);
-      alert("Upload failed ❌");
+      alert("Upload failed try again");
+      setScanned(false);
     }
   };
 
   const handleBarCodeScanned = (result: any) => {
     if (scanned) return;
-    setScanned(true);
-    // TODO: handle unlock logic with scanned data
     if (!idCardVerified) {
       return Alert.alert(
         "please upload your card identity",
-        "To start your ride you should upload your card identity for your safety",
+        "To start your ride you should upload your national card identity ",
         [
           {
             text: "dismise",
@@ -104,6 +108,7 @@ export default function UnlockBike() {
         ]
       );
     }
+    setScanned(true);
     alert(`QR code scanned: ${result.data}`);
   };
 

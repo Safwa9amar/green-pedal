@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     }
 
     const decoded = verifyToken(token);
+
     if (!decoded) {
       return withCORS(
         NextResponse.json(
