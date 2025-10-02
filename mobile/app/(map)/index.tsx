@@ -102,7 +102,6 @@ export default function HomeScreen() {
           showsUserLocation={true}
           showsMyLocationButton={true}
           mapType="standard"
-          onPress={handleMapPress}
         >
           {/* add random marker baed on curent location */}
           {bikes.map((bike) => (
