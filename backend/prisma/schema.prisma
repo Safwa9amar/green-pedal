@@ -45,7 +45,7 @@ model File {
 }
 
 model BikeStation {
-  id        Int    @id @default(autoincrement())
+  id        String @id @default(uuid())
   name      String
   latitude  Float
   longitude Float
@@ -54,8 +54,9 @@ model BikeStation {
 }
 
 model Bike {
-  id                 Int            @id @default(autoincrement())
-  stationId          Int
+  id                 String         @id @default(uuid())
+  stationId          String
+  qrCode             String
   status             BikeStatus     @default(AVAILABLE)
   currentLocationLat Float
   currentLocationLng Float
@@ -73,8 +74,8 @@ enum BikeStatus {
 }
 
 model BikeLocation {
-  id        Int      @id @default(autoincrement())
-  bikeId    Int
+  id        String   @id @default(uuid())
+  bikeId    String
   latitude  Float
   longitude Float
   timestamp DateTime @default(now())
@@ -82,24 +83,29 @@ model BikeLocation {
 }
 
 model Rental {
-  id        Int       @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   userId    String
-  bikeId    Int
+  bikeId    String
   startTime DateTime
   endTime   DateTime?
   totalCost Float?
-  status    String    @default("ONGOING") // ONGOING, COMPLETED
-  user      User      @relation(fields: [userId], references: [id])
-  bike      Bike      @relation(fields: [bikeId], references: [id])
+  status    RentalStatus @default(ACTIVE) // ONGOING, COMPLETED
+  user      User         @relation(fields: [userId], references: [id])
+  bike      Bike         @relation(fields: [bikeId], references: [id])
 }
 
 model BalanceTransaction {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   userId    String
   amount    Float
   type      String // RECHARGE, DEDUCTION
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+enum RentalStatus {
+  ACTIVE
+  COMPLETED
 }
 
 enum MimeType {

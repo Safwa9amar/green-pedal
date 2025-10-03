@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bike, LayoutDashboard, List, MapPin, Settings } from "lucide-react";
+import {
+  Bike,
+  LayoutDashboard,
+  List,
+  MapPin,
+  Settings,
+} from "lucide-react";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -10,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarContent,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Logo from "./Logo";
 
@@ -22,6 +29,7 @@ const navItems = [
 
 export default function SidebarNav() {
   const pathname = usePathname();
+  const { state } = useSidebar();
 
   return (
     <>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-
+import { ToastContainer } from "react-toastify";
 export const metadata: Metadata = {
   title: "Green Pedal Admin",
   description: "Admin Dashboard for Green Pedal bike sharing system.",
@@ -32,7 +31,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased dark">
         {children}
-        <Toaster />
+        <ToastContainer />
       </body>
     </html>
   );

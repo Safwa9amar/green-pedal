@@ -1,6 +1,6 @@
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, MapPin } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,65 +16,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { getStationsData } from "@/lib/services/stations";
+import AddStation from "@/components/forms/AddStation";
+import { deleteStation, getAllStations } from "./actions";
 
 export default async function StationsPage() {
-  const stations = await getStationsData();
+  const stations = await getAllStations();
 
   return (
     <>
       <PageHeader title="Stations">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2" />
-              Add Station
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Station</DialogTitle>
-              <DialogDescription>
-                Fill in the details to add a new bike station.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input id="name" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="location" className="text-right">
-                  Location
-                </Label>
-                <Input id="location" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="capacity" className="text-right">
-                  Capacity
-                </Label>
-                <Input id="capacity" type="number" className="col-span-3" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Save Station</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <AddStation />
       </PageHeader>
       <Card>
         <CardHeader>
@@ -97,9 +50,18 @@ export default async function StationsPage() {
               {stations.map((station) => (
                 <TableRow key={station.id}>
                   <TableCell className="font-medium">{station.name}</TableCell>
-                  {/* <TableCell>{station.location}</TableCell>
+                  <TableCell>
+                    <a
+                      target="_blank"
+                      className="flex gap-5"
+                      href={`https://www.google.com/maps?q=${station.latitude},${station.longitude}`}
+                    >
+                      <MapPin size={20} />
+                      Open in google maps
+                    </a>
+                  </TableCell>
                   <TableCell>{station.capacity}</TableCell>
-                  <TableCell>{station.bikesAvailable}</TableCell> */}
+                  <TableCell>{station.bikes.length}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -115,7 +77,14 @@ export default async function StationsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <form action={deleteStation}>
+                          <input type="hidden" name="id" value={station.id} />
+                          <DropdownMenuItem asChild>
+                            <button type="submit" className="w-full text-left">
+                              Delete
+                            </button>
+                          </DropdownMenuItem>
+                        </form>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

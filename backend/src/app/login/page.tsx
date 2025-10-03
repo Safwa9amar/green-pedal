@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Bike } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,12 +45,7 @@ export default function LoginPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                defaultValue="password"
-              />
+              <Input id="password" type="password" required defaultValue="password" />
             </div>
             <Button type="submit" className="w-full" asChild>
               <Link href="/dashboard">Login</Link>

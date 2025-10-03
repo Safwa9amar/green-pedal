@@ -1,19 +1,10 @@
-import prisma from "@/lib/db";
 import { Rental } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 export async function getRentalsData(): Promise<Rental[]> {
-  const rentals = await prisma.rental.findMany({
-    include: {
-      user: true,
-    },
-    orderBy: {
-      startTime: "desc",
-    },
-  });
-  return rentals.map((rental) => ({
-    ...rental,
-    userName: rental.user.name,
-  }));
+  // This is a mock implementation.
+  // In a real application, you would fetch this data from a database.
+  return await prisma.rental.findMany();
 }
 
 export async function getRecentRentalsData(): Promise<Rental[]> {

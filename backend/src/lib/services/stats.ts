@@ -1,23 +1,25 @@
-import prisma from "@/lib/db";
 import type { Stat } from "@/lib/types";
+import { mockBikes, mockRentals, mockStations } from "../data";
+import { getAllStations } from "@/app/dashboard/stations/actions";
+import { getALlBikes } from "@/app/dashboard/bikes/actions";
+import {
+  getActiveRentals,
+  getCompletedRentals,
+} from "@/app/dashboard/rentals/actions";
 
 export async function getStatsData(): Promise<{}[]> {
   try {
-    const totalStations = await prisma.bikeStation.count();
-    const totalBikes = await prisma.bike.count();
-    const activeRentals = await prisma.rental.count({
-      where: { status: "ACTIVE" },
-    });
-    const completedRentals = await prisma.rental.findMany({
-      where: { status: "COMPLETED", totalCost: { not: null } },
-    });
+    const totalStations = (await getAllStations()).length;
+    const totalBikes = (await getALlBikes()).length;
+    const activeRentals = (await getActiveRentals()).length;
+    const completedRentals = await getCompletedRentals();
 
     const totalRevenue = completedRentals.reduce(
       (acc, rental) => acc + (rental.totalCost ?? 0),
       0
     );
 
-    const stats: {}[] = [
+    const stats = [
       {
         title: "Total Stations",
         value: totalStations.toString(),

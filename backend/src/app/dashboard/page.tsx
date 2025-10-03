@@ -4,7 +4,6 @@ import type { Stat } from "@/lib/types";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import RecentRentals from "@/components/dashboard/RecentRentals";
 import { getStatsData } from "@/lib/services/stats";
-
 const iconMap: { [key: string]: React.ElementType } = {
   MapPin,
   Bike,
@@ -15,8 +14,9 @@ const iconMap: { [key: string]: React.ElementType } = {
 export default async function DashboardPage() {
   const statsData = await getStatsData();
 
-  const stats: any[] = statsData.map((stat) => ({
+  const stats: Stat[] = statsData.map((stat) => ({
     ...stat,
+    icon: iconMap[stat.icon],
   }));
 
   return (

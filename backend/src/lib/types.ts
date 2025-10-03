@@ -16,7 +16,7 @@ export type Station = {
 export type Bike = {
   id: string;
   qrCode: string;
-  status: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE';
+  status: "AVAILABLE" | "IN_USE" | "MAINTENANCE";
   batteryLevel: number;
   stationId: string | null;
   stationName?: string;
@@ -29,7 +29,7 @@ export type Rental = {
   startTime: Date;
   endTime: Date | null;
   cost: number | null;
-  status: 'ACTIVE' | 'COMPLETED';
+  status: "ACTIVE" | "COMPLETED";
   userName: string;
 };
 
@@ -38,5 +38,13 @@ export type Stat = {
   value: string;
   icon: React.ElementType;
   change?: string;
-  changeType?: 'increase' | 'decrease';
+  changeType?: "increase" | "decrease";
+};
+
+export type StationFormData = {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  capacity: number;
 };

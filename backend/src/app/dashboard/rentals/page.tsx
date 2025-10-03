@@ -7,13 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { getRentalsData } from "@/lib/services/rentals";
@@ -25,7 +19,7 @@ export default async function RentalsPage() {
     if (cost === null) return "N/A";
     return `$${cost.toFixed(2)}`;
   };
-
+  
   const formatDate = (date: Date | null) => {
     if (!date) return "N/A";
     return `${formatDistanceToNow(new Date(date))} ago`;
@@ -37,9 +31,7 @@ export default async function RentalsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Rental History</CardTitle>
-          <CardDescription>
-            A log of all bike rentals in the system.
-          </CardDescription>
+          <CardDescription>A log of all bike rentals in the system.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -53,7 +45,7 @@ export default async function RentalsPage() {
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
-            {/* <TableBody>
+            <TableBody>
               {rentals.map((rental) => (
                 <TableRow key={rental.id}>
                   <TableCell className="font-medium">{rental.userName}</TableCell>
@@ -68,7 +60,7 @@ export default async function RentalsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody> */}
+            </TableBody>
           </Table>
         </CardContent>
       </Card>

@@ -37,11 +37,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getBikesData } from "@/lib/services/bikes";
-import { getStationsData } from "@/lib/services/stations";
+import { getAllStations } from "../stations/actions";
 
 export default async function BikesPage() {
   const bikes = await getBikesData();
-  const stations = await getStationsData();
+  const stations = await getAllStations();
 
   const getStatusVariant = (
     status: "AVAILABLE" | "IN_USE" | "MAINTENANCE"
@@ -90,7 +90,7 @@ export default async function BikesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {stations.map((station) => (
-                      <SelectItem key={station.id} value={String(station.id)}>
+                      <SelectItem key={station.id} value={station.id}>
                         {station.name}
                       </SelectItem>
                     ))}
@@ -125,8 +125,8 @@ export default async function BikesPage() {
               {bikes.map((bike) => (
                 <TableRow key={bike.id}>
                   <TableCell className="font-medium">{bike.id}</TableCell>
-                  {/* <TableCell>{bike.stationName || 'N/A'}</TableCell>
-                  <TableCell>{bike.batteryLevel}%</TableCell> */}
+                  <TableCell>{bike.stationName || "N/A"}</TableCell>
+                  <TableCell>{bike.batteryLevel}%</TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(bike.status)}>
                       {bike.status.toLowerCase().replace("_", "-")}

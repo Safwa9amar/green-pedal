@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getRecentRentalsData } from "@/lib/services/rentals";
 
+
 export default async function RecentRentals() {
   const recentRentals = await getRecentRentalsData();
 
@@ -23,9 +24,7 @@ export default async function RecentRentals() {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Recent Rentals</CardTitle>
-        <CardDescription>
-          An overview of the latest rental activities.
-        </CardDescription>
+        <CardDescription>An overview of the latest rental activities.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -40,18 +39,14 @@ export default async function RecentRentals() {
             {recentRentals.map((rental) => (
               <TableRow key={rental.id}>
                 <TableCell>
-                  {/* <div className="font-medium">{rental.userName}</div> */}
+                  <div className="font-medium">{rental.userName}</div>
                   <div className="hidden text-sm text-muted-foreground md:inline">
                     {rental.userId}
                   </div>
                 </TableCell>
                 <TableCell>{rental.bikeId}</TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      rental.status === "ACTIVE" ? "destructive" : "secondary"
-                    }
-                  >
+                   <Badge variant={rental.status === 'ACTIVE' ? 'destructive' : 'secondary'}>
                     {rental.status.toLowerCase()}
                   </Badge>
                 </TableCell>
