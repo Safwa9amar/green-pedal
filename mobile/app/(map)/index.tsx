@@ -14,7 +14,13 @@ import { useNavigation } from "@react-navigation/native";
 export default function HomeScreen() {
   const navigation = useNavigation() as any;
 
-  const { setSelectedBike, selectedBike } = useBikeStore();
+  const {
+    isLoading,
+    stations,
+    refrechStations,
+    setSelectedBike,
+    selectedBike,
+  } = useBikeStore();
   const {
     location: userLocation,
     loading: locationLoading,
@@ -22,7 +28,6 @@ export default function HomeScreen() {
     refresh: refreshLocation,
   } = useUserLocation();
   const searchParams = useGlobalSearchParams();
-  const { bikes, setBikes, setLoading, setError } = useBikeStore();
   const { isRiding } = useRideStore();
 
   // State for destination selection
@@ -74,6 +79,10 @@ export default function HomeScreen() {
     }
   };
 
+  useEffect(() => {
+    refrechStations();
+  }, []);
+
   return (
     <>
       <RideInfo visible={isRiding} bike={selectedBike || undefined} />
@@ -104,20 +113,20 @@ export default function HomeScreen() {
           mapType="standard"
         >
           {/* add random marker baed on curent location */}
-          {bikes.map((bike) => (
+          {stations.map((station) => (
             <Marker
-              key={bike.id}
+              key={station.id}
               coordinate={{
-                latitude: bike.currentLocationLat,
-                longitude: bike.currentLocationLng,
+                latitude: station.latitude,
+                longitude: station.longitude,
               }}
-              title={`Bike ${bike.id}`}
-              description={`Status: ${bike.status}`}
-              pinColor={bike.status === "AVAILABLE" ? "#A5D6A7" : "#FF0000"}
-              onPress={() => {
-                setSelectedBike(bike);
-                setSelectedDestination(null); // reset destination on new bike select
-              }}
+              title={`station ${station.name}`}
+              description={`Available bikes : ${station?.bikes?.length}`}
+              pinColor={station.bikes.length > 0 ? "#A5D6A7" : "#FF0000"}
+              // onPress={() => {
+              //   setSelectedBike(bike);
+              //   setSelectedDestination(null); // reset destination on new bike select
+              // }}
             />
           ))}
           {/* Draw route polyline if available */}

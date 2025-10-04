@@ -56,10 +56,12 @@ model BikeStation {
 model Bike {
   id                 String         @id @default(uuid())
   stationId          String
-  qrCode             String
+  name               String         @default("Green pedal Bike")
+  qrCode             String?
+  photo              String
   status             BikeStatus     @default(AVAILABLE)
-  currentLocationLat Float
-  currentLocationLng Float
+  currentLocationLat Float?
+  currentLocationLng Float?
   stationName        String?
   batteryLevel       String?
   station            BikeStation    @relation(fields: [stationId], references: [id])

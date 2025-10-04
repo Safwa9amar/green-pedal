@@ -20,7 +20,11 @@ export async function POST(req: NextRequest) {
 // GET all stations
 export async function GET() {
   try {
-    const stations = await prisma.bikeStation.findMany();
+    const stations = await prisma.bikeStation.findMany({
+      include: {
+        bikes: true,
+      },
+    });
     return NextResponse.json({ stations }, { status: 200 });
   } catch (error) {
     console.error(error);

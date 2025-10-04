@@ -1,3 +1,4 @@
+import api from "@/api";
 import { create } from "zustand";
 
 export interface BikeStation {
@@ -47,38 +48,11 @@ interface BikeState {
   clearError: () => void;
   setLastUpdated: (date: Date) => void;
   refreshBikes: () => void;
+  refrechStations: () => void;
 }
 
 export const useBikeStore = create<BikeState>((set, get) => ({
-  bikes: [
-    {
-      id: 1,
-      stationId: 1,
-      status: "AVAILABLE",
-      currentLocationLat: 33.7204940251195,
-      currentLocationLng: 1.6877821493060277,
-      image: require("@/assets/images/bike.png"),
-      name: "City Cruiser",
-    },
-    {
-      id: 2,
-      stationId: 1,
-      status: "MAINTENANCE",
-      currentLocationLat: 33.718,
-      currentLocationLng: 1.686,
-      image: require("@/assets/images/bike.png"),
-      name: "Mountain Explorer",
-    },
-    {
-      id: 3,
-      stationId: 2,
-      status: "AVAILABLE",
-      currentLocationLat: 27.880170410299044,
-      currentLocationLng: -0.2909643087576213,
-      image: require("@/assets/images/bike.png"),
-      name: "Road Racer",
-    },
-  ],
+  bikes: [],
   stations: [],
   selectedBike: null,
   isLoading: false,
@@ -115,5 +89,12 @@ export const useBikeStore = create<BikeState>((set, get) => ({
     setLoading(true);
     setError(null);
     // This will be called by the API service
+  },
+  refrechStations: async () => {
+    const { setLoading, setError, setStations } = get();
+    setLoading(true);
+    setError(null);
+    const res = await api.get("/stations");
+    setStations(res.data["stations"]);
   },
 }));
