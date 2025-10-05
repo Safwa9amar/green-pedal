@@ -7,7 +7,7 @@
         "./*"
       ]
     },
-    "types": ["react-native", "node", "react"]
+    "types": ["react-native", "node", "react", "@types/socket.io-client"]
   },
   "include": [
     "**/*.ts",

@@ -1,36 +1,65 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar, Text } from "react-native-paper";
 import WeatherCard from "@/components/WeatherCard";
-import BikeCard from "@/components/StationCard";
+import StationCard from "@/components/StationCard";
 import { useTheme } from "@react-navigation/native";
 import { GreenRideTheme } from "@/constants/theme";
-import { useRouter } from "expo-router";
-import { useNavigation } from "@react-navigation/native";
-import { useAuthStore } from "@/src/store";
+import { useRouter, useNavigation } from "expo-router";
+import { useAuthStore, useBikeStore, useRouteStore } from "@/src/store";
+import { useUserLocation } from "@/src/store/useUserLocation";
+import { useStationStore } from "@/src/store/useStationStore";
+import { getDistanceFromLatLonInMeters } from "@/src/utils/getDistanceFromLatLonInMeters";
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { colors } = useTheme() as GreenRideTheme;
   const navigation = useNavigation() as any;
   const { user } = useAuthStore();
+  const { location, loading, refresh } = useUserLocation();
+  const { stations } = useBikeStore();
+  const [nearbyStations, setNearbyStations] = useState<any[]>([]);
+  const { setDestination } = useRouteStore();
+
+  useEffect(() => {
+    if (location && stations.length > 0) {
+      const filtered = stations
+        .map((station) => ({
+          ...station,
+          distance: getDistanceFromLatLonInMeters(
+            location.latitude,
+            location.longitude,
+            station.latitude,
+            station.longitude
+          ),
+        }))
+        .filter((s) => s.distance < 10000) // show stations within 10km
+        .sort((a, b) => a.distance - b.distance);
+
+      setNearbyStations(filtered);
+    }
+  }, [location, stations]);
 
   return (
     <LinearGradient
       colors={[colors.primary, colors.secondary]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refresh} />
+        }
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Avatar.Image
@@ -68,24 +97,32 @@ export default function WelcomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          horizontal
-          style={{
-            marginTop: 8,
-            paddingBottom: 10,
-          }}
-        >
-          <BikeCard
-            name="Haibike Sduro FullSeven"
-            distance="150 m"
-            available={1}
-            imageSource={require("@/assets/images/sba-bike-station.png")}
-          />
-          <BikeCard
-            name="Haibike Sduro FullSeven"
-            distance="150 m"
-            available={1}
-          />
+        <ScrollView horizontal style={{ marginTop: 8, paddingBottom: 10 }}>
+          {nearbyStations.length > 0 ? (
+            nearbyStations.map((station) => (
+              <StationCard
+                key={station.id}
+                name={station.name}
+                distance={`${Math.round(station.distance)} m`}
+                available={station.availableBikes}
+                imageSource={
+                  station.image ||
+                  require("@/assets/images/sba-bike-station.png")
+                }
+                onPress={() => {
+                  // ✅ Save the station coordinates
+                  setDestination({
+                    latitude: station.latitude,
+                    longitude: station.longitude,
+                  });
+                  // ✅ Navigate to the map page
+                  router.push("/(map)");
+                }}
+              />
+            ))
+          ) : (
+            <Text style={{ marginLeft: 24 }}>No nearby stations found.</Text>
+          )}
         </ScrollView>
       </ScrollView>
     </LinearGradient>
@@ -96,20 +133,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 48,
-    paddingHorizontal: 0,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 24,
     justifyContent: "space-between",
-  },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    borderWidth: 5,
-    borderColor: "#fff",
   },
   searchIcon: {
     marginRight: 8,

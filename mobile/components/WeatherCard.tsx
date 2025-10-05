@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import * as Location from "expo-location";
-
+import Skeleton from "react-native-reanimated-skeleton";
 interface WeatherData {
   main?: { temp?: number };
   weather?: { main?: string; icon?: string }[];
@@ -83,11 +83,10 @@ const WeatherCard: React.FC = () => {
 
   if (loading) {
     return (
-      <View
-        style={{ alignItems: "center", justifyContent: "center", height: 100 }}
-      >
-        <ActivityIndicator size="large" color="#231942" />
-      </View>
+      <Skeleton isLoading={true} containerStyle={styles.container}>
+        <Text>Your content</Text>
+        <Text>Other content</Text>
+      </Skeleton>
     );
   }
   if (error) {

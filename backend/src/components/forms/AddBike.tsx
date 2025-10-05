@@ -1,7 +1,5 @@
 "use client";
-
 import { useForm } from "react-hook-form";
-
 import {
   Dialog,
   DialogContent,
@@ -24,6 +22,8 @@ import {
 import { PlusCircle } from "lucide-react";
 import { BikeFormValues, createBike } from "@/app/dashboard/bikes/actions";
 import { Bike, BikeStation, BikeStatus } from "@prisma/client";
+import { toast } from "react-toastify";
+import { getStationByID } from "@/app/dashboard/stations/actions";
 
 const bikeStatuses = ["AVAILABLE", "IN_USE", "MAINTENANCE"];
 
@@ -33,6 +33,7 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<BikeFormValues>({
     defaultValues: {
@@ -57,8 +58,28 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
         : null,
       photo: values.photo?.[0], // take only first file
     };
-
-    await createBike(payload);
+    try {
+      const selectedStation = await getStationByID(values.stationId);
+      if (
+        selectedStation &&
+        selectedStation?.bikes.length + 1 > selectedStation?.capacity
+      )
+        return toast.warn("Please select other station, this station is full", {
+          position: "bottom-left",
+          toastId: "fullStation",
+        });
+      await createBike(payload);
+      toast.success("Bike added", {
+        position: "bottom-left",
+        toastId: "addBike",
+      });
+      reset();
+    } catch (error) {
+      toast.error("Error try again", {
+        position: "bottom-left",
+        toastId: "addBike",
+      });
+    }
   };
 
   const selectedStationId = watch("stationId");

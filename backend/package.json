@@ -8,6 +8,7 @@
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
+    "socket:server": "nodemon server.js",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
@@ -54,6 +55,7 @@
     "next": "15.3.3",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.6",
+    "nodemon": "^3.1.10",
     "patch-package": "^8.0.0",
     "prisma": "^6.16.2",
     "qrcode": "^1.5.4",
@@ -64,6 +66,7 @@
     "react-leaflet": "^5.0.0",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.1",
+    "socket.io": "^4.8.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"

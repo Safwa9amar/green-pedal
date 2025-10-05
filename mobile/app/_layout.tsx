@@ -14,8 +14,11 @@ import CustomDrawer from "@/components/Drawer";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import { getProfile } from "@/api";
+import { useBikeStore } from "@/src/store";
 
 export default function RootLayout() {
+  const { connectSocket } = useBikeStore();
+
   const colorScheme = useColorScheme();
   const { isAuthenticated, isLoading, user, logout, login, token } =
     useAuthStore();
@@ -26,6 +29,7 @@ export default function RootLayout() {
     if (isFirstLaunch === null) {
       checkFirstLaunch();
     }
+    connectSocket();
   }, []);
 
   // Show nothing until auth state is loaded

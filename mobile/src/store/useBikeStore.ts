@@ -1,35 +1,10 @@
-import api from "@/api";
 import { create } from "zustand";
+import { Bike } from "./useRideStore";
+import { BikeStation } from "./useStationStore";
+import { socket } from "../services/socket";
+import api from "@/api";
 
-export interface BikeStation {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  capacity: number;
-  bikes: Bike[];
-}
-
-export interface Bike {
-  id: number;
-  stationId: number;
-  status: "AVAILABLE" | "IN_USE" | "MAINTENANCE";
-  currentLocationLat: number;
-  currentLocationLng: number;
-  station?: BikeStation;
-  image: any;
-  name: string;
-}
-
-export interface BikeLocation {
-  id: number;
-  bikeId: number;
-  latitude: number;
-  longitude: number;
-  timestamp: string;
-}
-
-interface BikeState {
+export interface BikeState {
   bikes: Bike[];
   stations: BikeStation[];
   selectedBike: Bike | null;
@@ -47,8 +22,8 @@ interface BikeState {
   setError: (error: string | null) => void;
   clearError: () => void;
   setLastUpdated: (date: Date) => void;
-  refreshBikes: () => void;
-  refrechStations: () => void;
+
+  connectSocket: () => void;
 }
 
 export const useBikeStore = create<BikeState>((set, get) => ({
@@ -84,17 +59,26 @@ export const useBikeStore = create<BikeState>((set, get) => ({
   clearError: () => set({ error: null }),
   setLastUpdated: (date) => set({ lastUpdated: date }),
 
-  refreshBikes: () => {
-    const { setLoading, setError } = get();
-    setLoading(true);
-    setError(null);
-    // This will be called by the API service
-  },
-  refrechStations: async () => {
-    const { setLoading, setError, setStations } = get();
-    setLoading(true);
-    setError(null);
+  connectSocket: async () => {
+    set({ isLoading: true });
     const res = await api.get("/stations");
-    setStations(res.data["stations"]);
+    set({ stations: res.data["stations"] });
+
+    set({ isLoading: false });
+    socket.on("connect", () => {
+      console.log("✅ Connected to socket server");
+    });
+
+    socket.on("stations:update", (stations: BikeStation[]) => {
+      set({ stations });
+    });
+
+    socket.on("bikes:update", (bikes: Bike[]) => {
+      set({ bikes, lastUpdated: new Date() });
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Disconnected from socket");
+    });
   },
 }));

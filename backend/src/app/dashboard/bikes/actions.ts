@@ -5,6 +5,9 @@ import fs from "fs";
 import path from "path";
 import { revalidatePath } from "next/cache";
 import { writeFile } from "fs/promises";
+import { getIO } from "@/lib/socket";
+import { getAllStations } from "../stations/actions";
+const io = getIO();
 
 export async function getALlBikes(): Promise<Bike[]> {
   let bikes = await prisma.bike.findMany();
@@ -21,6 +24,7 @@ export async function SetBikeToMaintenance(formData: FormData) {
       status: "MAINTENANCE",
     },
   });
+  io.emit("stations:update", await getAllStations()); // broadcast new stations list
   revalidatePath("/dashboard/bikes");
 }
 
@@ -34,6 +38,7 @@ export async function SetBikeToAvailable(formData: FormData) {
       status: "AVAILABLE",
     },
   });
+  io.emit("stations:update", await getAllStations()); // broadcast new stations list
   revalidatePath("/dashboard/bikes");
 }
 
@@ -48,6 +53,7 @@ export async function deleteBike(formData: FormData) {
     const photoPath = path.join(process.cwd(), "public", bike.photo);
     fs.unlinkSync(photoPath);
   }
+  io.emit("stations:update", await getAllStations()); // broadcast new stations list
   revalidatePath("/dashboard/bikes");
 }
 
@@ -101,6 +107,7 @@ export async function createBike(data: BikeFormValues) {
       station: true,
     },
   });
+  io.emit("stations:update", await getAllStations()); // broadcast new stations list
   revalidatePath("/dashboard/bikes");
 
   return bike;
@@ -143,6 +150,7 @@ export async function updateBike(formData: FormData) {
         station: true,
       },
     });
+    io.emit("stations:update", await getAllStations()); // broadcast new stations list
 
     // ✅ Revalidate page cache
     revalidatePath("/dashboard/bikes");

@@ -25,7 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import QRCode from "qrcode";
 import BikeQRCode from "@/lib/BikeQRCode";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Avatar } from "@radix-ui/react-avatar";
@@ -87,7 +86,7 @@ export default function BikesTable({
                 </Avatar>
                 <p>{bike.name}</p>
               </TableCell>
-              <TableCell>{bike.station.name || "N/A"}</TableCell>
+              <TableCell>{bike?.station?.name || "N/A"}</TableCell>
               <TableCell>{bike.batteryLevel ?? "N/A"}%</TableCell>
               <TableCell>
                 <Badge variant={getStatusVariant(bike.status)}>

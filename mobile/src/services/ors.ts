@@ -3,12 +3,13 @@ const ORS_API_KEY =
 
 export async function fetchRouteORS(
   start: { latitude: number; longitude: number },
-  end: { latitude: number; longitude: number }
+  end: { latitude: number; longitude: number },
+  profile: string
 ) {
   try {
     // Use GET method and build the URL with start and end
     const url =
-      `https://api.openrouteservice.org/v2/directions/cycling-regular?api_key=${ORS_API_KEY}` +
+      `https://api.openrouteservice.org/v2/directions/${profile}?api_key=${process.env.EXPO_PUBLIC_ORS_API_KEY}` +
       `&start=${start.longitude},${start.latitude}` +
       `&end=${end.longitude},${end.latitude}`;
 
@@ -21,6 +22,8 @@ export async function fetchRouteORS(
     const coords = data.features[0].geometry.coordinates.map(
       ([lng, lat]: [number, number]) => ({ latitude: lat, longitude: lng })
     );
+    console.log(data.features[0].properties);
+
     return coords;
   } catch (error) {
     console.error(error);
@@ -28,6 +31,14 @@ export async function fetchRouteORS(
   }
 }
 
+export enum RouteProfile {
+  "driving-car",
+  "driving-hgv",
+  "cycling-regular",
+  "cycling-road",
+  "cycling-mountain",
+  "cycling-electric",
+}
 // OpenRouteService API response type for directions
 export interface OrsResponse {
   type: "FeatureCollection";

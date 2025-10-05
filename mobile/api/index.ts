@@ -1,6 +1,6 @@
+import { useAuthStore, User } from "@/src/store/useAuthStore";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { useAuthStore, User } from "@/src/store";
 
 // ✅ API base URL
 const API_URL =

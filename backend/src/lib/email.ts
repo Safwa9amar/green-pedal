@@ -5,8 +5,8 @@ export async function sendConfirmationEmail(to: string, code: string) {
     host: "smtp.ethereal.email",
     port: 587,
     auth: {
-      user: "theresa53@ethereal.email",
-      pass: "ybZfcU5kmh2nDrgqPw",
+      user: "dion12@ethereal.email",
+      pass: "NNVPBNTsjTRbGkMubM",
     },
   });
   const mailOptions = {

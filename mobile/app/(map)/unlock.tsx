@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Alert } from "react-native";
 import { Text } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useAuthStore, User } from "@/src/store";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { getProfile, uploadIdCard } from "@/api";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
@@ -16,9 +16,14 @@ export default function UnlockBike() {
   const { idCardVerified } = user as User;
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
-
   const [uploading, setUploading] = useState(false);
+  const navigation = useNavigation();
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Unlock bike",
+    });
+  }, []);
   // فتح الكاميرا
   const pickFromCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({

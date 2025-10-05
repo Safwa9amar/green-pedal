@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Edit } from "lucide-react";
 import { updateBike } from "@/app/dashboard/bikes/actions";
+import { toast } from "react-toastify";
 
 type BikeFormValues = {
   id: string;
@@ -67,8 +68,18 @@ export function EditBikeDialog({
     if (values.photo && values.photo.length > 0) {
       formData.append("photo", values.photo[0]);
     }
-
-    await updateBike(formData);
+    try {
+      await updateBike(formData);
+      toast.success("Bike edited", {
+        position: "bottom-left",
+        toastId: "editBike",
+      });
+    } catch (error) {
+      toast.error("Error, try again", {
+        position: "bottom-left",
+        toastId: "editBike",
+      });
+    }
   };
 
   return (
@@ -109,6 +120,9 @@ export function EditBikeDialog({
               Station
             </Label>
             <Select
+              {...register("stationId", {
+                required: "Station name is required",
+              })}
               onValueChange={(value) => setValue("stationId", value)}
               defaultValue={bike.stationId}
             >
@@ -123,6 +137,11 @@ export function EditBikeDialog({
                 ))}
               </SelectContent>
             </Select>
+            {errors.stationId && (
+              <p className="col-span-4 text-red-500 text-sm">
+                {errors.stationId.message}
+              </p>
+            )}
           </div>
 
           {/* Status */}
