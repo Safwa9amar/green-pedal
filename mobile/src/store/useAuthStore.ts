@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { usersAPI } from "../services/api"; // <-- adjust import path if needed
 
 export interface User {
   id: string;
@@ -10,9 +11,22 @@ export interface User {
   role: string;
   balance: number;
   photo: string;
+  avatar: string;
   idCardPhotoUrl?: string;
   idCardVerified?: boolean;
+  recharge: recharge[];
 }
+
+type recharge = {
+  id: string;
+  userId: string;
+  amount: number;
+  paymentId: string;
+  method: string;
+  status: string;
+  user: User;
+  createdAt: string;
+};
 
 interface AuthState {
   user: User | null;
@@ -27,14 +41,9 @@ interface AuthState {
   login: (user: User, token: string) => void;
   logout: () => void;
   updateBalance: (balance: number) => void;
-  // TEMP: mock login toggle
+  checkAuth: () => Promise<void>; // <-- added
 }
 
-export interface AuthStorage {
-  user: object;
-  token: string;
-  isAuthenticated: boolean;
-}
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -67,6 +76,30 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, balance } : null,
         })),
+
+      // ✅ Automatically check if token is valid and login
+      checkAuth: async () => {
+        const { token, user } = get();
+        if (!token) return;
+
+        set({ isLoading: true });
+        try {
+          const profile = await usersAPI.getProfile();
+          set({
+            user: profile,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error: any) {
+          console.warn("Auth check failed:", error?.response?.data || error);
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -76,6 +109,13 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      // ✅ This runs after hydration from AsyncStorage
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          // Once hydrated, check token validity and re-login automatically
+          state.checkAuth?.();
+        }
+      },
     }
   )
 );

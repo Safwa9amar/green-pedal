@@ -64,7 +64,15 @@ export default function WelcomeScreen() {
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Avatar.Image
               size={56}
-              source={require("../assets/images/profile.png")}
+              source={
+                user?.photo
+                  ? {
+                      uri: `${
+                        process.env.EXPO_PUBLIC_SERVER_URL + user?.photo
+                      }`,
+                    }
+                  : { uri: user?.avatar }
+              }
             />
           </TouchableOpacity>
           <TouchableOpacity

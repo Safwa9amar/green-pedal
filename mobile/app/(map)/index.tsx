@@ -1,49 +1,47 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Button,
-  Linking,
-} from "react-native";
-import { Avatar, Text } from "react-native-paper";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import { useBikeStore } from "@/src/store";
+import { useAuthStore, useBikeStore } from "@/src/store";
 import { useUserLocation } from "@/src/store/useUserLocation";
 import { useRouteStore } from "@/src/store/useRouteStore";
-import BikeInfoCard from "@/components/BikeInfoCard";
 import StationInfoCard from "@/components/StationInfoCard";
 
 export default function HomeScreen() {
+  const { user } = useAuthStore();
   const navigation = useNavigation() as any;
   const { stations, connectSocket } = useBikeStore();
-  const {
-    location: userLocation,
-    loading: locationLoading,
-    error: locationError,
-  } = useUserLocation();
+  const { location: userLocation } = useUserLocation();
 
-  // get route store actions and state
-  const {
-    destination,
-    routeCoords,
-    distance,
-    duration,
-    isLoading: routeLoading,
-    setDestination,
-    fetchRoute,
-    clearRoute,
-  } = useRouteStore();
+  const { destination, routeCoords, fetchRoute, clearRoute, setDestination } =
+    useRouteStore();
 
-  // connect socket once
+  // ✅ Map reference
+  const mapRef = useRef<MapView>(null);
+
+  // ✅ Connect socket on mount
   useEffect(() => {
     connectSocket();
   }, []);
 
-  // fetch route when user selects a station
+  // ✅ Animate to user’s location when available
   useEffect(() => {
-    let isMounted = true;
+    if (userLocation && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          latitudeDelta: 0.1, // zoom level
+          longitudeDelta: 0.01,
+        },
+        5000 // animation duration (ms)
+      );
+    }
+  }, [userLocation]);
+
+  // ✅ Fetch route when user selects a station
+  useEffect(() => {
     async function getRoute() {
       if (userLocation && destination) {
         await fetchRoute(userLocation, destination, "driving-car");
@@ -51,10 +49,7 @@ export default function HomeScreen() {
         clearRoute();
       }
     }
-    if (isMounted) getRoute();
-    return () => {
-      isMounted = false;
-    };
+    getRoute();
   }, [userLocation, destination]);
 
   return (
@@ -66,17 +61,23 @@ export default function HomeScreen() {
       >
         <Avatar.Image
           size={56}
-          source={require("@/assets/images/profile.png")}
+          source={
+            user?.photo
+              ? { uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}` }
+              : { uri: user?.avatar }
+          }
         />
       </TouchableOpacity>
 
+      {/* ✅ Attach ref to MapView */}
       <MapView
+        ref={mapRef}
         style={styles.map}
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="hybrid"
       >
-        {/* Stations Markers */}
+        {/* Station markers */}
         {stations.map((station) => (
           <Marker
             key={station.id}
@@ -85,7 +86,7 @@ export default function HomeScreen() {
               longitude: station.longitude,
             }}
             title={`Station: ${station.name}`}
-            description={`Bikes: ${station?.bikes?.length}`}
+            description={`Bikes: ${station.bikes.length}`}
             pinColor={station.bikes.length > 0 ? "#4CAF50" : "#FF0000"}
             onPress={() =>
               setDestination({
@@ -96,7 +97,7 @@ export default function HomeScreen() {
           />
         ))}
 
-        {/* Route between user and selected station */}
+        {/* Route polyline */}
         {routeCoords?.length > 1 && (
           <Polyline
             coordinates={routeCoords}
@@ -105,6 +106,7 @@ export default function HomeScreen() {
           />
         )}
       </MapView>
+
       <StationInfoCard
         visible={!!destination}
         station={stations.find(

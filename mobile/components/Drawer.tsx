@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/src/store";
 import { useRouter } from "expo-router";
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
@@ -14,19 +15,30 @@ const DRAWER_ITEMS: DrawerItem[] = [
   {
     label: "My Wallet",
     value: "wallet",
-    right: (user: any) => (user ? `$ ${user.balance?.toFixed(2)}` : undefined),
+    right: (user: any) =>
+      user ? `DZD ${user.balance?.toFixed(2)}` : undefined,
     route: "/(profile)/my-wallet",
   },
 
-  // {
-  //   label: "Invite Friends",
-  //   value: "invite",
-  //   route: "/(profile)/invite",
-  // },
+  {
+    label: "Rental history",
+    value: "invite",
+    route: "/(profile)/rental-history",
+  },
   {
     label: "Support",
     value: "support",
     route: "/(profile)/support",
+  },
+  {
+    label: "Privacy & Policy",
+    value: "privacy-policy",
+    route: "/(profile)/privacy-policy",
+  },
+  {
+    label: "Frequent questions",
+    value: "faq",
+    route: "/(profile)/faq",
   },
   {
     label: "Settings",
@@ -36,13 +48,14 @@ const DRAWER_ITEMS: DrawerItem[] = [
 ];
 
 export default function CustomDrawer({
-  user,
   onLogout,
 }: {
   user: any;
   onLogout: () => void;
 }) {
+  const { user } = useAuthStore();
   const router = useRouter();
+
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", width: "100%" }}>
       <View
@@ -56,9 +69,11 @@ export default function CustomDrawer({
         <Avatar.Image
           size={110}
           source={
-            user?.avatarUrl
-              ? { uri: user.avatarUrl }
-              : require("@/assets/images/profile.png")
+            user?.photo
+              ? {
+                  uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}`,
+                }
+              : { uri: user?.avatar }
           }
           style={{ marginBottom: 16, backgroundColor: "#fff" }}
         />

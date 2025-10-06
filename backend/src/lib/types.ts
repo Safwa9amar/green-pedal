@@ -48,3 +48,47 @@ export type StationFormData = {
   longitude: number;
   capacity: number;
 };
+
+export interface ChargilyWebhookEvent {
+  id: string;
+  entity: "event";
+  livemode: boolean | string; // sometimes Chargily sends it as string
+  type: "checkout.paid" | "checkout.failed" | string;
+  data: CheckoutData;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface CheckoutData {
+  id: string;
+  entity: "checkout";
+  fees: number;
+  amount: number;
+  locale: "ar" | "fr" | "en" | string;
+  status: "paid" | "pending" | "failed" | string;
+  metadata: Record<string, any> | null;
+  created_at: number;
+  updated_at: number;
+  invoice_id: string | null;
+  customer_id: string;
+  description: string | null;
+  failure_url: string | null;
+  success_url: string | null;
+  payment_method: string;
+  payment_link_id: string | null;
+  pass_fees_to_customer: boolean | null;
+  chargily_pay_fees_allocation: "customer" | "merchant" | string | null;
+  shipping_address: ShippingAddress | null;
+  collect_shipping_address: boolean | number;
+  discount: number | null;
+  amount_without_discount: number | null;
+  url: string;
+}
+
+export interface ShippingAddress {
+  state?: string;
+  address?: string;
+  country?: string;
+  city?: string;
+  zip?: string;
+}

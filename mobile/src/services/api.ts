@@ -103,8 +103,12 @@ export const usersAPI = {
     return response.data;
   },
 
-  updateProfile: async (updates: { name?: string; phone?: string }) => {
-    const response = await api.put("/users/profile", updates);
+  updateProfile: async (updates: FormData) => {
+    const response = await api.put("/users/profile", updates, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 
@@ -121,7 +125,19 @@ export const usersAPI = {
     return response.data;
   },
 };
-
+// payment API
+export const paymentApi = {
+  createChargilyCheckout: async (amount: number) => {
+    const response = await api.get(
+      `/payment/chargily/create-chargily-link?amount=${amount}`
+    );
+    return response.data;
+  },
+  createStripePaymentLink: async () => {
+    const response = await api.get("/payment/create-stripe-link");
+    return response.data;
+  },
+};
 // Stations API
 export const stationsAPI = {
   getStations: async () => {

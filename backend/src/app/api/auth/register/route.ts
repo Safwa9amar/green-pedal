@@ -12,7 +12,6 @@ const registerSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  // Helper to add CORS headers
   function withCORS(response: NextResponse) {
     response.headers.set("Access-Control-Allow-Origin", "*");
     response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
@@ -40,25 +39,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate confirmation code
+    // 🔹 Generate random avatar using DiceBear
+    const seed = encodeURIComponent(name + Date.now().toString());
+    const avatarUrl = `https://api.dicebear.com/9.x/fun-emoji//png?seed=${seed}`;
+
+    // 🔹 Generate confirmation code
     const confirmationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    const confirmationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    const confirmationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 🔹 Create user with avatar
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
+        avatar: avatarUrl, // store random avatar here
         emailConfirmed: false,
         confirmationCode,
         confirmationCodeExpires,
       },
     });
 
-    // Send confirmation email
+    // 🔹 Send confirmation email
     let emailSent = true;
     try {
       const { sendConfirmationEmail } = await import("@/lib/email");
@@ -69,7 +75,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (!emailSent) {
-      // Option 1: Delete user and reject registration
       await prisma.user.delete({ where: { email } });
       return withCORS(
         NextResponse.json(
@@ -88,6 +93,7 @@ export async function POST(req: NextRequest) {
         {
           message:
             "Registration successful! Please check your email for a confirmation code.",
+          avatar: avatarUrl, // optional to return in response
         },
         { status: 201 }
       )
@@ -104,7 +110,7 @@ export async function POST(req: NextRequest) {
         )
       );
     }
-    console.log(error);
+    console.error(error);
     return withCORS(
       NextResponse.json(
         { message: "Oops! Something went wrong. Please try again later." },

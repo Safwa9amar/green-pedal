@@ -15,3 +15,17 @@ export function getIdCardFolder(): string {
 
   return uploadDir;
 }
+
+/**
+ * Get the absolute path for the "profile photo" folder inside public/
+ * Ensures the folder exists (creates if not).
+ */
+export function getProfilePhotoFolder(): string {
+  const uploadDir = path.join(process.cwd(), "public", "profile-photo");
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  return uploadDir;
+}

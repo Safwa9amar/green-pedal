@@ -22,9 +22,11 @@ model User {
   confirmationCode        String?
   confirmationCodeExpires DateTime?
   photo                   String?
+  avatar                  String?
   idCardPhoto             File? // Relation to File model for ID card photo
   idCardPhotoUrl          String? // Direct URL for ID card photo (for quick access)
   idCardVerified          Boolean              @default(false) // Mark if admin verified
+  recharge                Recharge[]
 }
 
 model File {
@@ -51,6 +53,20 @@ model BikeStation {
   longitude Float
   capacity  Int
   bikes     Bike[]
+}
+
+model Recharge {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  paymentId String   @unique
+  method    String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to User model
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Bike {

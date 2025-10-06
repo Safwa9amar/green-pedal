@@ -7,6 +7,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { getProfile, uploadIdCard } from "@/api";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
+import { useIdCardVerification } from "@/hooks/useIdCardVerification";
 
 const { width } = Dimensions.get("window");
 const SCAN_SIZE = width * 0.7;
@@ -16,80 +17,14 @@ export default function UnlockBike() {
   const { idCardVerified } = user as User;
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const [uploading, setUploading] = useState(false);
   const navigation = useNavigation();
-
+  const { pickFromCamera, pickFromGallery, uploading } =
+    useIdCardVerification();
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Unlock bike",
+      headerTitle: "",
     });
   }, []);
-  // فتح الكاميرا
-  const pickFromCamera = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      let photo = result.assets[0].uri;
-      let type = result.assets[0].mimeType;
-      let res = await handleUpload(photo, type);
-    }
-  };
-
-  // فتح المعرض
-  const pickFromGallery = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      let photo = result.assets[0].uri;
-      let type = result.assets[0].mimeType;
-      await handleUpload(photo, type);
-    }
-  };
-
-  const handleUpload = async (photo: any, type: any) => {
-    if (!photo) return;
-
-    const cardPhoto = {
-      name: "identity-card",
-      type: type,
-      uri: photo,
-    } as any;
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("userId", user?.id ?? "");
-    formData.append("idCard", cardPhoto);
-
-    try {
-      let res = await uploadIdCard(formData);
-
-      setUploading(false);
-
-      if (res.status === 200) {
-        alert("Identity card successfully uploaded ✅");
-        const profileRes = await getProfile();
-        if (profileRes.status === 200) {
-          const user = profileRes.data;
-          token && login(user, token);
-        }
-      } else {
-        const errorText = res.data;
-        alert("Failed to upload. " + errorText);
-      }
-    } catch (err) {
-      setUploading(false);
-      console.error(err);
-      alert("Upload failed try again");
-      setScanned(false);
-    }
-  };
 
   const handleBarCodeScanned = (result: any) => {
     if (scanned) return;

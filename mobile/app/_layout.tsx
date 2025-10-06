@@ -15,6 +15,7 @@ import { Drawer } from "expo-router/drawer";
 import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import { getProfile } from "@/api";
 import { useBikeStore } from "@/src/store";
+import { socket } from "@/src/services/socket";
 
 export default function RootLayout() {
   const { connectSocket } = useBikeStore();
@@ -30,6 +31,7 @@ export default function RootLayout() {
       checkFirstLaunch();
     }
     connectSocket();
+    useAuthStore.getState().checkAuth();
   }, []);
 
   // Show nothing until auth state is loaded
