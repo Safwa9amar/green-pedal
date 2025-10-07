@@ -109,7 +109,7 @@ export const register = (data: RegisterData) =>
   api.post("/auth/register", data);
 
 export const login = (data: LoginData) =>
-  api.post<{ token: string; refreshToken: string; user: User }>(
+  api.post<{ accessToken: string; refreshToken: string; user: User }>(
     "/auth/login",
     data
   );

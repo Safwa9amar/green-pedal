@@ -23,7 +23,7 @@ export interface BikeState {
   clearError: () => void;
   setLastUpdated: (date: Date) => void;
 
-  connectSocket: () => void;
+  getUpdates: () => void;
 }
 
 export const useBikeStore = create<BikeState>((set, get) => ({
@@ -59,15 +59,12 @@ export const useBikeStore = create<BikeState>((set, get) => ({
   clearError: () => set({ error: null }),
   setLastUpdated: (date) => set({ lastUpdated: date }),
 
-  connectSocket: async () => {
+  getUpdates: async () => {
     set({ isLoading: true });
     const res = await api.get("/stations");
     set({ stations: res.data["stations"] });
 
     set({ isLoading: false });
-    socket.on("connect", () => {
-      console.log("✅ Connected to socket server");
-    });
 
     socket.on("stations:update", (stations: BikeStation[]) => {
       set({ stations });

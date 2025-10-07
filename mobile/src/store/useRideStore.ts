@@ -14,10 +14,18 @@ export interface Bike {
     capacity: number;
     bikes: import("./useBikeStore").Bike[];
   };
-  image: any;
+  photo: any;
   name: string;
+  type: string;
+  batteryTime: string;
+  batteryLevel: string;
+  specs: BikeSpecs[];
 }
-
+export interface BikeSpecs {
+  icon: string;
+  label: string;
+  value: string;
+}
 export interface Rental {
   id: number;
   userId: number;

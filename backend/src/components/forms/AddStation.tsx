@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, ImageIcon } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
@@ -20,8 +20,11 @@ import { toast } from "react-toastify";
 import MapPicker from "./MapPicker";
 import { useRouter } from "next/navigation";
 import { createStation } from "@/app/dashboard/stations/actions";
+
 export default function AddStation() {
   const { refresh } = useRouter();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -30,23 +33,35 @@ export default function AddStation() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<StationFormData>();
-  let { latitude, longitude } = watch();
+
+  const { latitude, longitude } = watch();
+
   const onSubmit = async (data: StationFormData) => {
-    if (!latitude && !longitude) {
+    if (!latitude || !longitude) {
       return toast.error("Please select the station on the map", {
         toastId: "maptoast",
       });
     }
+
     try {
-      await createStation(data);
-      // Reset form on success
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("capacity", data.capacity.toString());
+      formData.append("latitude", latitude.toString());
+      formData.append("longitude", longitude.toString());
+
+      if (imageFile) {
+        formData.append("photo", imageFile);
+      }
+
+      await createStation(formData);
+
       reset();
-      toast.success("Station added successfully!", {
-        position: "bottom-left",
-      });
+      setImageFile(null);
+      toast.success("Station added successfully!", { position: "bottom-left" });
       refresh();
     } catch (err) {
-      toast.error("Error when create a new station try again", {
+      toast.error("Error creating station, please try again", {
         position: "bottom-left",
       });
       console.error(err);
@@ -61,6 +76,7 @@ export default function AddStation() {
           Add Station
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:min-w-[525px]">
         <DialogHeader>
           <DialogTitle>Add New Station</DialogTitle>
@@ -69,8 +85,8 @@ export default function AddStation() {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+          {/* Name */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Name
@@ -87,6 +103,7 @@ export default function AddStation() {
             )}
           </div>
 
+          {/* Capacity */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="capacity" className="text-right">
               Capacity
@@ -108,6 +125,30 @@ export default function AddStation() {
             )}
           </div>
 
+          {/* Image Upload */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="image" className="text-right">
+              Photo
+            </Label>
+            <div className="col-span-3 flex items-center gap-2">
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setImageFile(e.target.files ? e.target.files[0] : null)
+                }
+              />
+              {imageFile && (
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <ImageIcon className="h-4 w-4" />
+                  {imageFile.name}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Map */}
           <div>
             <MapPicker
               onSelect={(lat, lng) => {
@@ -115,11 +156,6 @@ export default function AddStation() {
                 setValue("longitude", lng);
               }}
             />
-            {errors.latitude && (
-              <p className="col-span-4 text-red-500 text-sm">
-                {errors.latitude.message}
-              </p>
-            )}
           </div>
 
           <DialogFooter>

@@ -14,8 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getRecentRentalsData } from "@/lib/services/rentals";
-
+import { getRecentRentalsData } from "@/app/dashboard/actions";
 
 export default async function RecentRentals() {
   const recentRentals = await getRecentRentalsData();
@@ -24,7 +23,9 @@ export default async function RecentRentals() {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Recent Rentals</CardTitle>
-        <CardDescription>An overview of the latest rental activities.</CardDescription>
+        <CardDescription>
+          An overview of the latest rental activities.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -46,7 +47,11 @@ export default async function RecentRentals() {
                 </TableCell>
                 <TableCell>{rental.bikeId}</TableCell>
                 <TableCell>
-                   <Badge variant={rental.status === 'ACTIVE' ? 'destructive' : 'secondary'}>
+                  <Badge
+                    variant={
+                      rental.status === "ACTIVE" ? "destructive" : "secondary"
+                    }
+                  >
                     {rental.status.toLowerCase()}
                   </Badge>
                 </TableCell>

@@ -14,21 +14,19 @@ import { LogOut, User } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 function getPageTitle(pathname: string): string {
   const normalizedPath = pathname.toLowerCase();
-  if (normalizedPath === '/dashboard') return 'Dashboard';
-  if (normalizedPath.startsWith('/dashboard/stations')) return 'Stations';
-  if (normalizedPath.startsWith('/dashboard/bikes')) return 'Bikes';
-  if (normalizedPath.startsWith('/dashboard/rentals')) return 'Rentals';
-  return 'Green Pedal';
+  if (normalizedPath === "/dashboard") return "Dashboard";
+  if (normalizedPath.startsWith("/dashboard/stations")) return "Stations";
+  if (normalizedPath.startsWith("/dashboard/bikes")) return "Bikes";
+  if (normalizedPath.startsWith("/dashboard/rentals")) return "Rentals";
+  return "Green Pedal";
 }
 
 export default function Header() {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
-  const avatarImage = PlaceHolderImages.find(p => p.id === 'avatar');
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
@@ -36,13 +34,15 @@ export default function Header() {
         <SidebarTrigger />
       </div>
       <div className="flex-1">
-        <h1 className="text-2xl font-bold font-headline text-foreground">{pageTitle}</h1>
+        <h1 className="text-2xl font-bold font-headline text-foreground">
+          {pageTitle}
+        </h1>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar className="h-9 w-9">
-              {avatarImage && <AvatarImage src={avatarImage.imageUrl} alt="Admin" data-ai-hint={avatarImage.imageHint} />}
+              <AvatarImage src={"./assets/logo.png"} alt="Admin" />
               <AvatarFallback>A</AvatarFallback>
             </Avatar>
           </Button>

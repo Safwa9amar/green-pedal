@@ -35,7 +35,6 @@ export default function Layout() {
       <Stack.Screen name="rental-history" />
       <Stack.Screen name="my-wallet" />
       <Stack.Screen name="payment" />
-      <Stack.Screen name="top-up" />
       <Stack.Screen name="faq" />
     </Stack>
   );

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.paid") {
       const checkout = event.data;
 
-      console.log("✅ Payment Successful:", checkout);
+      // console.log("✅ Payment Successful:", checkout);
 
       const amount = checkout.amount;
       const status = checkout.status;
@@ -51,13 +51,14 @@ export async function POST(req: NextRequest) {
       });
 
       // ✅ Save recharge record
-      await prisma.recharge.create({
+      await prisma.balanceTransaction.create({
         data: {
           amount,
           userId,
           paymentId,
           method,
           status,
+          type: "RECHARGE",
         },
       });
 

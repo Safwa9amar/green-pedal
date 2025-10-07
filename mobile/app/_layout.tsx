@@ -1,12 +1,14 @@
 import { Stack, useRouter } from "expo-router";
-import { ThemeProvider } from "@react-navigation/native";
+import { ThemeProvider, useNavigation } from "@react-navigation/native";
 import {
   StatusBar,
+  StyleSheet,
+  Text,
   TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "../src/store/useAuthStore";
 import { useAppLaunchStore } from "../src/store/useAppLaunchStore";
 import { darkTheme, defaultTheme } from "@/constants/theme";
@@ -16,10 +18,14 @@ import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import { getProfile } from "@/api";
 import { useBikeStore } from "@/src/store";
 import { socket } from "@/src/services/socket";
+import useSocket from "@/hooks/useSocket";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import MapTabBar from "@/components/MapTabBar";
+import { Avatar } from "react-native-paper";
 
 export default function RootLayout() {
-  const { connectSocket } = useBikeStore();
-
+  useSocket();
+  const { getUpdates } = useBikeStore();
   const colorScheme = useColorScheme();
   const { isAuthenticated, isLoading, user, logout, login, token } =
     useAuthStore();
@@ -30,8 +36,7 @@ export default function RootLayout() {
     if (isFirstLaunch === null) {
       checkFirstLaunch();
     }
-    connectSocket();
-    useAuthStore.getState().checkAuth();
+    isAuthenticated && getUpdates();
   }, []);
 
   // Show nothing until auth state is loaded
@@ -64,11 +69,11 @@ export default function RootLayout() {
   // Authenticated: show main app drawer
   return (
     <ThemeProvider value={colorScheme === "dark" ? darkTheme : defaultTheme}>
-      <StatusBar />
+      <StatusBar barStyle={"dark-content"} />
       <Drawer
+        initialRouteName="(tabs)"
         drawerContent={(props) => (
           <CustomDrawer
-            user={user}
             onLogout={() => {
               logout();
             }}
@@ -76,27 +81,51 @@ export default function RootLayout() {
           />
         )}
         screenOptions={{
-          headerShown: false,
+          header: ({ navigation }) => (
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <Avatar.Image
+                  size={40}
+                  source={
+                    user?.photo
+                      ? {
+                          uri: `${
+                            process.env.EXPO_PUBLIC_SERVER_URL + user?.photo
+                          }`,
+                        }
+                      : { uri: user?.avatar }
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.searchIcon}
+                onPress={() => router.push("/search")}
+              >
+                <Ionicons name="search" size={36} color="#231942" />
+              </TouchableOpacity>
+            </View>
+          ),
         }}
       >
-        <Drawer.Screen name="index" />
-        <Drawer.Screen
-          options={{
-            headerShown: true,
-            headerTitle: "Find stations",
-            headerLeft: () => (
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={{ flexDirection: "row", gap: 5, marginHorizontal: 10 }}
-              >
-                <Ionicons name="arrow-back-outline" size={24} color="black" />
-              </TouchableOpacity>
-            ),
-          }}
-          name="(map)"
-        />
+        <Drawer.Screen name="(tabs)" />
         <Drawer.Screen name="(auth)" />
+        <Drawer.Screen name="(profile)" options={{ headerShown: false }} />
       </Drawer>
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 24,
+    marginTop: 50,
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+    marginTop: 8,
+  },
+});

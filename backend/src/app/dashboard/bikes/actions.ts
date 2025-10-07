@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { writeFile } from "fs/promises";
 import { getIO } from "@/lib/socket";
 import { getAllStations } from "../stations/actions";
+import { uploadImage } from "@/lib/uploadImage";
 const io = getIO();
 
 export async function getALlBikes(): Promise<Bike[]> {
@@ -59,58 +60,76 @@ export async function deleteBike(formData: FormData) {
 
 export type BikeFormValues = {
   name: string;
-  photo: File | Blob | null;
+  photo: File;
   stationId: string;
   status?: BikeStatus;
   currentLocationLat?: number | null;
   currentLocationLng?: number | null;
   stationName?: string;
-  batteryLevel?: string;
+  batteryLevel: string;
+  specs: {
+    icon: string;
+    label: string;
+    value: string;
+  }[];
 };
 
-export async function createBike(data: BikeFormValues) {
-  let photoUrl: string = "";
+export async function createBike(formData: FormData) {
+  try {
+    // ✅ Extract basic fields
+    const name = formData.get("name") as string;
+    const stationId = formData.get("stationId") as string;
+    const status = (formData.get("status") as BikeStatus) ?? "AVAILABLE";
+    const stationName = formData.get("stationName") as string | null;
+    const batteryLevel = formData.get("batteryLevel") as string | null;
+    const currentLocationLat = formData.get("currentLocationLat")
+      ? parseFloat(formData.get("currentLocationLat") as string)
+      : null;
+    const currentLocationLng = formData.get("currentLocationLng")
+      ? parseFloat(formData.get("currentLocationLng") as string)
+      : null;
 
-  // ✅ Handle photo upload
-  if (data.photo) {
-    const buffer = Buffer.from(await data.photo.arrayBuffer());
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "bikes");
+    // ✅ Parse specs JSON (comes as stringified JSON from client)
+    const specsRaw = formData.get("specs") as string;
+    const specs =
+      specsRaw && specsRaw.trim() !== "" ? JSON.parse(specsRaw) : [];
 
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    // ✅ Upload photo if provided
+    let photoUrl: string | null = null;
+    const photo = formData.get("photo") as File;
+    photoUrl = await uploadImage(photo, "bikes");
+    // photo is requied so fix this
+    // ✅ Create bike in DB
+    const bike = await prisma.bike.create({
+      data: {
+        name,
+        stationId,
+        status,
+        currentLocationLat,
+        currentLocationLng,
+        stationName,
+        batteryLevel,
+        photo: photoUrl as any,
+        specs: {
+          createMany: {
+            data: specs,
+          },
+        },
+      },
+      include: { station: true, specs: true },
+    });
 
-    const filename = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2)}.png`;
-    const filepath = path.join(uploadDir, filename);
+    // ✅ Notify all clients
+    io.emit("stations:update", await getAllStations());
 
-    fs.writeFileSync(filepath, buffer);
+    // ✅ Revalidate dashboard
+    revalidatePath("/dashboard/bikes");
 
-    // Next.js will serve files from /public
-    photoUrl = `/uploads/bikes/${filename}`;
+    return bike;
+  } catch (error) {
+    console.error("❌ Error creating bike:", error);
+    throw new Error("Failed to create bike");
   }
-
-  // ✅ Step 1: Create bike WITHOUT qrCode (yet)
-  let bike = await prisma.bike.create({
-    data: {
-      stationId: data.stationId,
-      status: data.status ?? "AVAILABLE",
-      currentLocationLat: data.currentLocationLat ?? null,
-      currentLocationLng: data.currentLocationLng ?? null,
-      stationName: data.stationName ?? null,
-      batteryLevel: data.batteryLevel ?? null,
-      // Save uploaded photo path
-      photo: photoUrl,
-    },
-    include: {
-      station: true,
-    },
-  });
-  io.emit("stations:update", await getAllStations()); // broadcast new stations list
-  revalidatePath("/dashboard/bikes");
-
-  return bike;
 }
 
 export async function updateBike(formData: FormData) {
@@ -120,39 +139,50 @@ export async function updateBike(formData: FormData) {
     const stationId = formData.get("stationId") as string;
     const status = formData.get("status") as string;
     const photoFile = formData.get("photo") as File | null;
+    const specsRaw = formData.get("specs") as string | null;
 
-    let photoUrl: string | undefined;
-
-    // ✅ Handle new photo upload
-    if (photoFile && photoFile.size > 0) {
-      const bytes = await photoFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "bikes");
-      const filePath = path.join(uploadDir, `${id}-${photoFile.name}`);
-
-      await writeFile(filePath, buffer);
-
-      // Save relative path to DB (e.g. "/uploads/bikes/bike123.png")
-      photoUrl = `/uploads/bikes/${id}-${photoFile.name}`;
+    let specs: { icon: string; label: string; value: string }[] = [];
+    if (specsRaw) {
+      try {
+        specs = JSON.parse(specsRaw);
+      } catch (e) {
+        console.error("❌ Failed to parse specs JSON:", e);
+      }
     }
 
-    // ✅ Update bike in Prisma
+    let photoUrl: string | null = null;
+    const photo = formData.get("photo") as File;
+    photoUrl = await uploadImage(photo, "bikes");
+
+    // ✅ Update the bike and its related specs atomically
     const updatedBike = await prisma.bike.update({
       where: { id },
       data: {
         name,
         stationId,
-        status: status as any, // "AVAILABLE" | "IN_USE" | "MAINTENANCE"
+        status: status as any,
         ...(photoUrl ? { photo: photoUrl } : {}),
+
+        // 🧩 Sync specs: delete old ones, then recreate
+        specs: {
+          deleteMany: {}, // remove all old specs
+          create: specs.map((spec) => ({
+            icon: spec.icon,
+            label: spec.label,
+            value: spec.value,
+          })),
+        },
       },
       include: {
         station: true,
+        specs: true,
       },
     });
-    io.emit("stations:update", await getAllStations()); // broadcast new stations list
 
-    // ✅ Revalidate page cache
+    // ✅ Notify clients via socket
+    io.emit("stations:update", await getAllStations());
+
+    // ✅ Revalidate cache
     revalidatePath("/dashboard/bikes");
 
     return { success: true, bike: updatedBike };

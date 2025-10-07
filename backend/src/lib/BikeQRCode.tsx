@@ -7,7 +7,7 @@ export default function BikeQRCode({ bikeId }: { bikeId: string }) {
   const [qrCode, setQrCode] = useState<string | null>(null);
 
   async function generateQRCode() {
-    const qrData = `https://yourdomain.com/rentals/start?bikeId=${bikeId}`;
+    const qrData = `id=${bikeId}`;
     const qr = await QRCode.toDataURL(qrData, {
       margin: 2,
       width: 300,

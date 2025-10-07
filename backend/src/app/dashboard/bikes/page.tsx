@@ -1,12 +1,12 @@
 import PageHeader from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddBike } from "@/components/forms/AddBike";
-import { getBikesData } from "@/lib/services/bikes";
 import { getAllStations } from "../stations/actions";
 import BikesTable from "./BikesTable";
+import { getALlBikes } from "./actions";
 
 export default async function BikesPage() {
-  const bikes = await getBikesData(); // ✅ Safe on server
+  const bikes = await getALlBikes(); // ✅ Safe on server
   const stations = await getAllStations();
 
   return (

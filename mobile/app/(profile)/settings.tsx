@@ -84,7 +84,7 @@ export default function ProfileSettings() {
       formData.append("photo", { uri, type, name } as any);
 
       const data = await usersAPI.updateProfile(formData);
-      setUser(data?.user);
+      setUser({ ...data?.user, photo: `${data?.user?.photo}?v=${Date.now()}` });
     }
   };
 
@@ -361,8 +361,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAFAFA",
-    position: "absolute",
-    top: 150,
+    position: "fixed",
     borderTopLeftRadius: 50,
     width: "100%",
     height: "100%",

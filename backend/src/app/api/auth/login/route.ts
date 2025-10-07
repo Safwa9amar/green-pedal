@@ -94,13 +94,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      { expiresIn: "10s" }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_REFRESH_SECRET!
     );
 
-    return withCORS(NextResponse.json({ token }));
+    return withCORS(NextResponse.json({ accessToken, refreshToken }));
   } catch (error) {
     if (error instanceof z.ZodError) {
       return withCORS(

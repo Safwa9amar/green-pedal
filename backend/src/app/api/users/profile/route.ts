@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
         avatar: true,
         idCardPhotoUrl: true,
         idCardVerified: true,
-        recharge: true,
+        balanceTransactions: true,
       },
     });
 
@@ -194,7 +194,7 @@ export async function PUT(req: NextRequest) {
         avatar: true,
         idCardPhotoUrl: true,
         idCardVerified: true,
-        recharge: true,
+        balanceTransactions: true,
       },
     });
 

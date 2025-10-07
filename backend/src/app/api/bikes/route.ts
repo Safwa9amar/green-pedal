@@ -14,7 +14,7 @@ function withCORS(response: NextResponse) {
   return response;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const bikes = await prisma.bike.findMany({
       where: { status: "AVAILABLE" },

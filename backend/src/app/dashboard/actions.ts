@@ -1,3 +1,5 @@
+"use server";
+
 import { Rental } from "@prisma/client";
 import prisma from "@/lib/prisma";
 

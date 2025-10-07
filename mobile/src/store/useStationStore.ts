@@ -7,6 +7,8 @@ export interface BikeStation {
   longitude: number;
   capacity: number;
   bikes: any[];
+  photoUrl: string;
+  distance: number;
 }
 
 interface StationState {

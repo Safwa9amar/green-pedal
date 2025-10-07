@@ -1,39 +1,24 @@
-import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { useEffect } from "react";
+import { socket } from "@/src/services/socket";
 
-export function useSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
-
+export default function useSocket() {
   useEffect(() => {
-    const newSocket = io(process.env.EXPO_PUBLIC_API_URL!, {
-      path: "/socket",
-      transports: ["websocket"], // RN requires websocket
+    console.log("⚡ Connecting to socket server...");
+    socket.connect();
+
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
     });
 
-    newSocket.on("connect", () => {
-      console.log("✅ Connected to server:", newSocket.id);
+    socket.on("disconnect", (reason: any) => {
+      console.log("❌ Socket disconnected:", reason);
     });
-
-    newSocket.on("message", (msg: string) => {
-      console.log("📩 New message:", msg);
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    newSocket.on("disconnect", () => {
-      console.log("❌ Disconnected from server");
-    });
-
-    setSocket(newSocket);
 
     return () => {
-      newSocket.disconnect();
+      console.log("🧹 Cleaning up socket...");
+      socket.disconnect();
     };
   }, []);
 
-  const sendMessage = (msg: string) => {
-    socket?.emit("message", msg);
-  };
-
-  return { socket, messages, sendMessage };
+  return socket;
 }

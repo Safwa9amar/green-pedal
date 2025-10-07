@@ -1,41 +1,74 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 
-// API Configuration
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.9:3000/api";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// Create axios instance
-const api: AxiosInstance = axios.create({
+const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+let isRefreshing = false;
+let refreshSubscribers: any[] = [];
 
-// Response interceptor to handle errors
+function onRefreshed(newToken: string) {
+  refreshSubscribers.forEach((cb) => cb(newToken));
+  refreshSubscribers = [];
+}
+
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid, logout user
-      useAuthStore.getState().logout();
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const { refreshToken, setToken, logout } = useAuthStore.getState();
+    // ⛔ If no refresh token or already retried, logout
+    if (
+      error.response?.status === 401 &&
+      refreshToken &&
+      !originalRequest._retry
+    ) {
+      if (isRefreshing) {
+        // Queue the requests until refresh completes
+        return new Promise((resolve) => {
+          refreshSubscribers.push((newToken: string) => {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const { data } = await axios.get(
+          `${API_BASE_URL}/auth/refresh-accesstoken`,
+          {
+            headers: { Authorization: `Bearer ${refreshToken}` },
+          }
+        );
+
+        const newToken = data.accessToken;
+        setToken(newToken);
+        onRefreshed(newToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        logout();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     }
+
     return Promise.reject(error);
   }
 );
@@ -61,6 +94,10 @@ export const authAPI = {
 export const bikesAPI = {
   getBikes: async () => {
     const response = await api.get("/bikes");
+    return response.data;
+  },
+  getBikeByID: async (id: string) => {
+    const response = await api.get(`/bikes/${id}`);
     return response.data;
   },
 

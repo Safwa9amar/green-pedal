@@ -8,11 +8,14 @@ import { getProfile, uploadIdCard } from "@/api";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
 import { useIdCardVerification } from "@/hooks/useIdCardVerification";
+import { useIsFocused } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 const SCAN_SIZE = width * 0.7;
 
 export default function UnlockBike() {
+  const isFocused = useIsFocused();
+  const router = useRouter();
   const { user, login, token } = useAuthStore();
   const { idCardVerified } = user as User;
   const [scanned, setScanned] = useState(false);
@@ -49,8 +52,13 @@ export default function UnlockBike() {
       );
     }
     setScanned(true);
-    alert(`QR code scanned: ${result.data}`);
+
+    router.push(`/(tabs)/unlock/bike-details?${result.data}`);
   };
+
+  useEffect(() => {
+    isFocused && setScanned(false);
+  }, [isFocused]);
 
   if (!permission) {
     return (

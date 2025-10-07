@@ -26,7 +26,6 @@ model User {
   idCardPhoto             File? // Relation to File model for ID card photo
   idCardPhotoUrl          String? // Direct URL for ID card photo (for quick access)
   idCardVerified          Boolean              @default(false) // Mark if admin verified
-  recharge                Recharge[]
 }
 
 model File {
@@ -44,29 +43,20 @@ model File {
   // Relations (optional: connect file to a user or entity)
   userId String? @unique // If file belongs to a user
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bikeStationId String?      @unique // If file belongs to a user
+  bikeStation   BikeStation? @relation(fields: [bikeStationId], references: [id], onDelete: Cascade)
 }
 
 model BikeStation {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   name      String
   latitude  Float
   longitude Float
   capacity  Int
+  photoUrl  String?
+  photo     File?
   bikes     Bike[]
-}
-
-model Recharge {
-  id        String   @id @default(cuid())
-  userId    String
-  amount    Int
-  paymentId String   @unique
-  method    String
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relation to User model
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Bike {
@@ -80,9 +70,25 @@ model Bike {
   currentLocationLng Float?
   stationName        String?
   batteryLevel       String?
+  maxLoad            String?
+  maxSpeed           String?
+  maxDistance        String?
+  type               String?
+  batteryTime        String?
   station            BikeStation?   @relation(fields: [stationId], references: [id])
   rentals            Rental[]
   locations          BikeLocation[]
+  specs              BikeSpecs[]
+}
+
+model BikeSpecs {
+  id    String @id @default(uuid())
+  icon  String
+  label String
+  value String
+
+  bikeID String?
+  bike   Bike?   @relation(fields: [bikeID], references: [id], onDelete: Cascade)
 }
 
 enum BikeStatus {
@@ -113,12 +119,20 @@ model Rental {
 }
 
 model BalanceTransaction {
-  id        String   @id @default(uuid())
+  id        String                 @id @default(uuid())
   userId    String
   amount    Float
-  type      String // RECHARGE, DEDUCTION
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  type      BalanceTransactionType // RECHARGE, DEDUCTION
+  paymentId String                 @unique
+  method    String
+  status    String
+  createdAt DateTime               @default(now())
+  user      User                   @relation(fields: [userId], references: [id])
+}
+
+enum BalanceTransactionType {
+  RECHARGE
+  DEDUCTION
 }
 
 enum RentalStatus {

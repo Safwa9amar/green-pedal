@@ -37,5 +37,5 @@ export function useUserLocation() {
     getLocation();
   }, [getLocation]);
 
-  return { location, loading, error, refresh: getLocation };
+  return { location, loading, error, refresh: getLocation, setLocation };
 }

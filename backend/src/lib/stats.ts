@@ -1,5 +1,3 @@
-import type { Stat } from "@/lib/types";
-import { mockBikes, mockRentals, mockStations } from "../data";
 import { getAllStations } from "@/app/dashboard/stations/actions";
 import { getALlBikes } from "@/app/dashboard/bikes/actions";
 import {

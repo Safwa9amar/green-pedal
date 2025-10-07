@@ -125,9 +125,18 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     marginHorizontal: 16,
     padding: 16,
-    marginBottom: 24,
-    backgroundColor: "rgba(255,255,255,0.5)",
+    backgroundColor: "#fff",
+
+    // // 🌗 Shadow for iOS
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 6,
+
+    // // 🌑 Elevation for Android
+    // elevation: 6,
   },
+
   weatherIcon: {
     width: 64,
     height: 64,
@@ -154,7 +163,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.5)",
     borderRadius: 20,
     padding: 10,
-    alignItems: "center",
   },
   weatherDate: {
     fontSize: 18,

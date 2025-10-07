@@ -8,7 +8,7 @@ import { useForm, Controller } from "react-hook-form";
 
 const LoginScreen = () => {
   const router = useRouter();
-  const { login, isAuthenticated, setToken } = useAuthStore();
+  const { login, isAuthenticated, setToken, setRefreshToken } = useAuthStore();
   const {
     control,
     handleSubmit,
@@ -29,14 +29,15 @@ const LoginScreen = () => {
         password: data.password,
       });
       // If login is successful
-      const { token } = response.data || response;
-      setToken(token);
+      const { accessToken, refreshToken } = response.data || response;
 
-      if (token) {
+      if (accessToken && refreshToken) {
+        setToken(accessToken);
+        setRefreshToken(refreshToken);
         const profileRes = await getProfile();
         if (profileRes.status === 200) {
           const user = profileRes.data;
-          login(user, token);
+          login(user, accessToken);
         }
         return;
       }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,10 +13,10 @@ import {
 } from "react-native";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { paymentApi } from "@/src/services/api";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function MyWallet() {
   const { user, isLoading, checkAuth, setLoading } = useAuthStore();
-
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 
@@ -103,16 +103,16 @@ export default function MyWallet() {
               color="#2E7D32"
               style={{ marginTop: 30 }}
             />
-          ) : user?.recharge?.length === 0 ? (
+          ) : user?.balanceTransactions?.length === 0 ? (
             <Text style={styles.emptyText}>No transactions found.</Text>
           ) : (
-            user?.recharge.map((item) => (
+            user?.balanceTransactions.map((item) => (
               <TransactionItem
                 key={item.id}
                 title={"Recharge"}
                 date={new Date(item.createdAt).toLocaleDateString()}
                 amount={item.amount}
-                type={"credit"}
+                type={item.type}
               />
             ))
           )}
@@ -183,8 +183,18 @@ export default function MyWallet() {
   );
 }
 
-const TransactionItem = ({ title, date, amount, type }: any) => {
-  const isCredit = type === "credit";
+const TransactionItem = ({
+  title,
+  date,
+  amount,
+  type,
+}: {
+  title: string;
+  date: string;
+  amount: number;
+  type: "RECHARGE" | "DEDUCTION";
+}) => {
+  const isCredit = type === "RECHARGE";
   return (
     <View
       style={[
@@ -195,12 +205,13 @@ const TransactionItem = ({ title, date, amount, type }: any) => {
         },
       ]}
     >
-      <View
-        style={[
-          styles.iconCircle,
-          { backgroundColor: isCredit ? "#C8E6C9" : "#FFCDD2" },
-        ]}
-      />
+      <View style={styles.iconContainer}>
+        {isCredit ? (
+          <MaterialIcons name="arrow-downward" size={28} color="#43A047" />
+        ) : (
+          <MaterialIcons name="arrow-upward" size={28} color="#E53935" />
+        )}
+      </View>
       <View style={styles.transactionInfo}>
         <Text style={styles.transactionTitle}>{title}</Text>
         <Text style={styles.transactionDate}>{date}</Text>
@@ -230,6 +241,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 35,
     overflow: "hidden",
     elevation: 8,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
   },
   gradientBackground: {
     alignItems: "center",

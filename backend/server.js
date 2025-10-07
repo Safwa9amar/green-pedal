@@ -24,6 +24,9 @@ app.prepare().then(() => {
   global._io = io;
 
   io.on("connection", (socket) => {
+    const { token, user } = socket.handshake.auth;
+    console.log(token, user);
+
     console.log("🔌 Client connected:", socket.id);
   });
 

@@ -3,7 +3,7 @@ import { Bike, MapPin, Activity, DollarSign } from "lucide-react";
 import type { Stat } from "@/lib/types";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import RecentRentals from "@/components/dashboard/RecentRentals";
-import { getStatsData } from "@/lib/services/stats";
+import { getStatsData } from "@/lib/stats";
 const iconMap: { [key: string]: React.ElementType } = {
   MapPin,
   Bike,

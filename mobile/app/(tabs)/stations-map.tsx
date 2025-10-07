@@ -7,23 +7,22 @@ import { useAuthStore, useBikeStore } from "@/src/store";
 import { useUserLocation } from "@/src/store/useUserLocation";
 import { useRouteStore } from "@/src/store/useRouteStore";
 import StationInfoCard from "@/components/StationInfoCard";
+import { useLocalSearchParams } from "expo-router";
+import { useSearchParams } from "expo-router/build/hooks";
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
   const navigation = useNavigation() as any;
-  const { stations, connectSocket } = useBikeStore();
+  const { stations } = useBikeStore();
   const { location: userLocation } = useUserLocation();
-
+  const searchParams = useSearchParams();
+  const lat = parseFloat(searchParams.get("lat") as string);
+  const lng = parseFloat(searchParams.get("lng") as string);
   const { destination, routeCoords, fetchRoute, clearRoute, setDestination } =
     useRouteStore();
 
   // ✅ Map reference
   const mapRef = useRef<MapView>(null);
-
-  // ✅ Connect socket on mount
-  useEffect(() => {
-    connectSocket();
-  }, []);
 
   // ✅ Animate to user’s location when available
   useEffect(() => {
@@ -40,6 +39,23 @@ export default function HomeScreen() {
     }
   }, [userLocation]);
 
+  // ✅ Animate to user’s location when available
+  console.log(lat, lng);
+
+  useEffect(() => {
+    if (userLocation && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.1, // zoom level
+          longitudeDelta: 0.01,
+        },
+        5000 // animation duration (ms)
+      );
+    }
+  }, [lat, lng]);
+
   // ✅ Fetch route when user selects a station
   useEffect(() => {
     async function getRoute() {
@@ -54,28 +70,15 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Menu button */}
-      <TouchableOpacity
-        style={styles.menu}
-        onPress={() => navigation.openDrawer()}
-      >
-        <Avatar.Image
-          size={56}
-          source={
-            user?.photo
-              ? { uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}` }
-              : { uri: user?.avatar }
-          }
-        />
-      </TouchableOpacity>
-
-      {/* ✅ Attach ref to MapView */}
       <MapView
         ref={mapRef}
         style={styles.map}
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="hybrid"
+        showsCompass
+        showsScale
+        showsTraffic
       >
         {/* Station markers */}
         {stations.map((station) => (

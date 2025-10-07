@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
     zIndex: 100,
     position: "absolute",
     bottom: 0,
-    paddingBottom: 120,
     left: 0,
     backgroundColor: "#E8F5E9",
     width: "100%",

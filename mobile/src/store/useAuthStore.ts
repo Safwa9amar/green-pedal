@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { usersAPI } from "../services/api"; // <-- adjust import path if needed
+import api from "@/api";
+import axios from "axios";
+import { usersAPI } from "../services/api";
 
 export interface User {
   id: string;
@@ -14,10 +16,10 @@ export interface User {
   avatar: string;
   idCardPhotoUrl?: string;
   idCardVerified?: boolean;
-  recharge: recharge[];
+  balanceTransactions: balanceTransactions[];
 }
 
-type recharge = {
+type balanceTransactions = {
   id: string;
   userId: string;
   amount: number;
@@ -25,18 +27,21 @@ type recharge = {
   method: string;
   status: string;
   user: User;
+  type: "RECHARGE" | "DEDUCTION";
   createdAt: string;
 };
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
   // Actions
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (token: string | null) => void;
   setLoading: (loading: boolean) => void;
   login: (user: User, token: string) => void;
   logout: () => void;
@@ -49,11 +54,13 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setToken: (token) => set({ token }),
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
       setLoading: (isLoading) => set({ isLoading }),
 
       login: (user, token) =>
@@ -68,6 +75,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           token: null,
+          refreshToken: null,
           isAuthenticated: false,
           isLoading: false,
         }),
@@ -77,21 +85,27 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, balance } : null,
         })),
 
-      // ✅ Automatically check if token is valid and login
       checkAuth: async () => {
-        const { token, user } = get();
-        if (!token) return;
+        const { token, refreshToken } = get();
+        if (!token || !refreshToken) return;
 
         set({ isLoading: true });
         try {
+          const { data } = await axios.get(
+            `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh-accesstoken`,
+            { headers: { Authorization: `Bearer ${refreshToken}` } }
+          );
+
           const profile = await usersAPI.getProfile();
+
           set({
             user: profile,
+            token: data.accessToken,
             isAuthenticated: true,
             isLoading: false,
           });
-        } catch (error: any) {
-          console.warn("Auth check failed:", error?.response?.data || error);
+        } catch (error) {
+          console.warn("Auth check failed:", error);
           set({
             user: null,
             token: null,
@@ -107,14 +121,11 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-      // ✅ This runs after hydration from AsyncStorage
       onRehydrateStorage: () => (state) => {
-        if (state?.token) {
-          // Once hydrated, check token validity and re-login automatically
-          state.checkAuth?.();
-        }
+        if (state?.token) state.checkAuth?.();
       },
     }
   )
