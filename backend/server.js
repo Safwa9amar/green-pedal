@@ -24,10 +24,43 @@ app.prepare().then(() => {
   global._io = io;
 
   io.on("connection", (socket) => {
-    const { token, user } = socket.handshake.auth;
-    console.log(token, user);
+    try {
+      const { token } = socket.handshake.auth;
 
-    console.log("🔌 Client connected:", socket.id);
+      // Check if token exists
+      if (!token) {
+        console.log("⛔ No token provided, disconnecting client...");
+        socket.disconnect(true);
+        return;
+      }
+
+      // Verify token
+      const decoded = verifyToken(token);
+
+      if (!decoded || !decoded.userId) {
+        console.log("⛔ Invalid token, disconnecting client...");
+        socket.disconnect(true);
+        return;
+      }
+
+      console.log(
+        `🔌 Client connected: ${socket.id}, User ID: ${decoded.userId}`
+      );
+
+      // You can store user info for later use
+      socket.data.user = decoded;
+
+      // Example: emit a welcome message
+      socket.emit("connected", { message: "You are connected to the server!" });
+
+      // Handle disconnection
+      socket.on("disconnect", (reason) => {
+        console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
+      });
+    } catch (err) {
+      console.error("⚠️ Socket connection error:", err);
+      socket.disconnect(true);
+    }
   });
 
   httpServer
@@ -39,3 +72,13 @@ app.prepare().then(() => {
       console.log(`✅ Ready on http://${hostname}:${port}`);
     });
 });
+import jwt from "jsonwebtoken";
+
+export function verifyToken(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

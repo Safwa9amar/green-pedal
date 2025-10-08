@@ -3,6 +3,7 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { ChargilyWebhookEvent } from "@/lib/types";
 import { getIO } from "@/lib/socket";
+const io = getIO();
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.paid") {
       const checkout = event.data;
 
-      // console.log("✅ Payment Successful:", checkout);
+      console.log("✅ Payment Successful:", checkout);
 
       const amount = checkout.amount;
       const status = checkout.status;
@@ -62,8 +63,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // ✅ Emit socket update
-      const io = getIO();
       io.emit("balance:update", { userId, newBalance: user.balance });
 
       console.log(`💰 Updated user ${userId} balance to ${user.balance}`);

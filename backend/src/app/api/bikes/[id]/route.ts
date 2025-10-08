@@ -22,7 +22,6 @@ export async function GET(
         specs: true,
       },
     });
-    console.log(bike);
 
     if (!bike) {
       return NextResponse.json({ error: "Bike not found." }, { status: 404 });

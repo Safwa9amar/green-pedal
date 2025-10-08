@@ -83,7 +83,7 @@ model Bike {
 
 model BikeSpecs {
   id    String @id @default(uuid())
-  icon  String
+  icon  String @default("speedometer")
   label String
   value String
 

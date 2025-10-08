@@ -2,10 +2,11 @@
   "expo": {
     "name": "green-pedal",
     "slug": "green-pedal",
+    "scheme": "greenpedal",
+    "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "greenpedal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -73,7 +74,9 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": "https://greenpedal.com"
+      },
       "eas": {
         "projectId": "af93077e-94ad-4537-9e4a-d6aa8b75fd4c"
       }

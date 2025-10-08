@@ -11,7 +11,11 @@ import { uploadImage } from "@/lib/uploadImage";
 const io = getIO();
 
 export async function getALlBikes(): Promise<Bike[]> {
-  let bikes = await prisma.bike.findMany();
+  let bikes = await prisma.bike.findMany({
+    include: {
+      specs: true,
+    },
+  });
   return bikes;
 }
 
@@ -19,13 +23,19 @@ export async function SetBikeToMaintenance(formData: FormData) {
   let id = formData.get("id") as string;
 
   if (!id) throw new Error("Station ID is required");
-  await prisma.bike.update({
+  let updatedBike = await prisma.bike.update({
     where: { id },
     data: {
       status: "MAINTENANCE",
     },
+    include: {
+      station: true,
+      specs: true,
+    },
   });
   io.emit("stations:update", await getAllStations()); // broadcast new stations list
+  io.emit("bike:updated", updatedBike);
+
   revalidatePath("/dashboard/bikes");
 }
 
@@ -33,13 +43,19 @@ export async function SetBikeToAvailable(formData: FormData) {
   let id = formData.get("id") as string;
 
   if (!id) throw new Error("Station ID is required");
-  await prisma.bike.update({
+  let updatedBike = await prisma.bike.update({
     where: { id },
     data: {
       status: "AVAILABLE",
     },
+    include: {
+      station: true,
+      specs: true,
+    },
   });
   io.emit("stations:update", await getAllStations()); // broadcast new stations list
+  io.emit("bike:updated", updatedBike);
+
   revalidatePath("/dashboard/bikes");
 }
 
@@ -60,6 +76,7 @@ export async function deleteBike(formData: FormData) {
 
 export type BikeFormValues = {
   name: string;
+  type: string;
   photo: File;
   stationId: string;
   status?: BikeStatus;
@@ -67,6 +84,7 @@ export type BikeFormValues = {
   currentLocationLng?: number | null;
   stationName?: string;
   batteryLevel: string;
+  batteryTime: string;
   specs: {
     icon: string;
     label: string;
@@ -82,6 +100,7 @@ export async function createBike(formData: FormData) {
     const status = (formData.get("status") as BikeStatus) ?? "AVAILABLE";
     const stationName = formData.get("stationName") as string | null;
     const batteryLevel = formData.get("batteryLevel") as string | null;
+    const batteryTime = formData.get("batteryTime") as string | null;
     const currentLocationLat = formData.get("currentLocationLat")
       ? parseFloat(formData.get("currentLocationLat") as string)
       : null;
@@ -109,6 +128,7 @@ export async function createBike(formData: FormData) {
         currentLocationLng,
         stationName,
         batteryLevel,
+        batteryTime,
         photo: photoUrl as any,
         specs: {
           createMany: {
@@ -181,6 +201,7 @@ export async function updateBike(formData: FormData) {
 
     // ✅ Notify clients via socket
     io.emit("stations:update", await getAllStations());
+    io.emit("bike:updated", updatedBike);
 
     // ✅ Revalidate cache
     revalidatePath("/dashboard/bikes");

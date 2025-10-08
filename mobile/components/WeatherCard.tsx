@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as Location from "expo-location";
 import Skeleton from "react-native-reanimated-skeleton";
+import { useUserLocation } from "@/src/store/useUserLocation";
 interface WeatherData {
   main?: { temp?: number };
   weather?: { main?: string; icon?: string }[];
@@ -49,37 +50,24 @@ const getFormattedDate = () => {
 
 const WeatherCard: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { location, loading } = useUserLocation();
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
       try {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setError("Location permission denied");
-          setLoading(false);
-          Alert.alert(
-            "Permission Denied",
-            "Location permission is required to get weather data."
-          );
-          return;
-        }
-        let loc = await Location.getCurrentPositionAsync({});
-        // Fetch weather
         const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${loc.coords.latitude}&lon=${loc.coords.longitude}&appid=${apiKey}&units=metric`;
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location?.latitude}&lon=${location?.longitude}&appid=${apiKey}&units=metric`;
+
         const res = await fetch(url);
         const data = await res.json();
+
         setWeather(data);
       } catch (e) {
         setError("Failed to get weather");
-      } finally {
-        setLoading(false);
       }
     })();
-  }, []);
+  }, [location]);
 
   if (loading) {
     return (

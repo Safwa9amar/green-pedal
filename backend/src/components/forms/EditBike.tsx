@@ -110,7 +110,7 @@ export function EditBikeDialog({
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[720px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Edit Bike</DialogTitle>
           <DialogDescription>
@@ -130,7 +130,6 @@ export function EditBikeDialog({
               <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
-
           {/* --- Station --- */}
           <div>
             <Label>Station</Label>
@@ -153,7 +152,6 @@ export function EditBikeDialog({
               <p className="text-sm text-red-500">{errors.stationId.message}</p>
             )}
           </div>
-
           {/* --- Status --- */}
           <div>
             <Label>Status</Label>
@@ -173,7 +171,6 @@ export function EditBikeDialog({
               </SelectContent>
             </Select>
           </div>
-
           {/* --- Photo --- */}
           <div>
             <Label htmlFor="photo">Photo</Label>
@@ -210,9 +207,7 @@ export function EditBikeDialog({
               >
                 <Input
                   placeholder="Icon (e.g., ⚡)"
-                  {...register(`specs.${index}.icon` as const, {
-                    required: "Icon required",
-                  })}
+                  {...register(`specs.${index}.icon` as const)}
                   className="w-16 text-center"
                 />
                 <Input
@@ -221,6 +216,7 @@ export function EditBikeDialog({
                     required: "Label required",
                   })}
                 />
+
                 <Input
                   placeholder="Value (e.g., 90%)"
                   {...register(`specs.${index}.value` as const, {
@@ -248,7 +244,6 @@ export function EditBikeDialog({
               <PlusCircle className="h-4 w-4" /> Add Spec
             </Button>
           </div>
-
           {/* --- Submit --- */}
           <DialogFooter>
             <Button type="submit" className="w-full">

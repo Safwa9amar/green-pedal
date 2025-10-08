@@ -64,6 +64,7 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
       stationId: "",
       status: "AVAILABLE",
       batteryLevel: "",
+      batteryTime: "",
       specs: [{ label: "Max Speed", value: "", icon: "gauge" }],
     },
   });
@@ -141,10 +142,9 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
             <h3 className="font-medium text-sm text-muted-foreground">
               General Information
             </h3>
-
             {/* Bike name */}
             <div>
-              <Label htmlFor="name">Bike Name</Label>
+              <Label htmlFor="name">Bike Name *</Label>
               <Input
                 id="name"
                 placeholder="e.g. Green Pedal Bike"
@@ -155,11 +155,24 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
                   {errors.name.message}
                 </p>
               )}
+            </div>{" "}
+            {/* Bike Type */}
+            <div>
+              <Label htmlFor="name">Bike Type</Label>
+              <Input
+                id="type"
+                placeholder="e.g. Green Pedal Bike"
+                {...register("type")}
+              />
+              {errors.type && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.type.message}
+                </p>
+              )}
             </div>
-
             {/* Photo */}
             <div>
-              <Label htmlFor="photo">Bike Photo</Label>
+              <Label htmlFor="photo">Bike Photo *</Label>
               <Input
                 id="photo"
                 type="file"
@@ -172,7 +185,6 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
                 </p>
               )}
             </div>
-
             {/* Station & Status */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -196,7 +208,7 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
               </div>
 
               <div>
-                <Label>Status</Label>
+                <Label>Status *</Label>
                 <Select
                   onValueChange={(value) =>
                     setValue("status", value as BikeStatus)
@@ -216,7 +228,6 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
                 </Select>
               </div>
             </div>
-
             {/* Battery Level */}
             <div>
               <Label htmlFor="batteryLevel">Battery Level (%)</Label>
@@ -229,8 +240,19 @@ export function AddBike({ stations }: { stations: BikeStation[] }) {
                 {...register("batteryLevel")}
               />
             </div>
+            {/* batteryTime */}
+            <div>
+              <Label htmlFor="batteryTime">Battery Time (hours)</Label>
+              <Input
+                type="number"
+                id="batteryTime"
+                min={0}
+                max={100}
+                placeholder="e.g. 3"
+                {...register("batteryTime")}
+              />
+            </div>
           </div>
-
           {/* Bike Specs Section */}
           <div className="border border-border/30 rounded-xl p-4 bg-muted/10 space-y-4">
             <h3 className="font-medium text-sm text-muted-foreground">

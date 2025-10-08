@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
     const checkout = await MychargilyClient.createCheckout({
       amount: amount || 1000, // 💰 Amount in centimes (e.g., 50000 = 500 DZD)
       currency: "dzd",
-      success_url: "http://192.168.1.9:9002/payments/success",
-      failure_url: "http://192.168.1.9:9002/payments/failure",
+      success_url: process.env.APP_PAYMENT_SUCCESS as any,
+      failure_url: process.env.APP_PAYMENT_FAILURE,
       description: "Recharge wallet balance",
       locale: "ar",
       metadata: {

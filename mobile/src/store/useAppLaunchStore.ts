@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback } from 'react';
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCallback } from "react";
 
 interface AppLaunchState {
   isFirstLaunch: boolean | null;
@@ -10,9 +10,10 @@ interface AppLaunchState {
 
 export const useAppLaunchStore = create<AppLaunchState>((set) => ({
   isFirstLaunch: null,
+  _hasHydrated: false,
   checkFirstLaunch: async () => {
     try {
-      const value = await AsyncStorage.getItem('hasLaunched');
+      const value = await AsyncStorage.getItem("hasLaunched");
       if (value === null) {
         set({ isFirstLaunch: true });
       } else {
@@ -23,7 +24,7 @@ export const useAppLaunchStore = create<AppLaunchState>((set) => ({
     }
   },
   setNotFirstLaunch: async () => {
-    await AsyncStorage.setItem('hasLaunched', 'true');
+    await AsyncStorage.setItem("hasLaunched", "true");
     set({ isFirstLaunch: false });
   },
 }));

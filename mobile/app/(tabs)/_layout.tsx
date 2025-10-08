@@ -10,7 +10,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="stations-map" />
       <Tabs.Screen name="repport" />
       <Tabs.Screen name="search" />
-      <Tabs.Screen name="unlock" />
+      <Tabs.Screen name="unlock/index" />
     </Tabs>
   );
 }

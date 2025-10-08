@@ -183,4 +183,18 @@ export const stationsAPI = {
   },
 };
 
+export const rentalApi = {
+  startRide: async function (bikeId: string) {
+    let respone = await api.post("/rental/start-ride", {
+      data: { bikeId },
+    });
+    return respone.data;
+  },
+  endRide: async function (bikeId: string) {
+    let respone = await api.post("/rental/end-ride", {
+      data: { bikeId },
+    });
+    return respone.data;
+  },
+};
 export default api;

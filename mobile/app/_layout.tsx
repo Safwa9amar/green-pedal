@@ -1,28 +1,23 @@
 import { Stack, useRouter } from "expo-router";
-import { ThemeProvider, useNavigation } from "@react-navigation/native";
+import { NavigationContainer, ThemeProvider } from "@react-navigation/native";
 import {
   StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "../src/store/useAuthStore";
 import { useAppLaunchStore } from "../src/store/useAppLaunchStore";
 import { darkTheme, defaultTheme } from "@/constants/theme";
 import CustomDrawer from "@/components/Drawer";
 import { Drawer } from "expo-router/drawer";
-import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
-import { getProfile } from "@/api";
+import { Ionicons } from "@expo/vector-icons";
 import { useBikeStore } from "@/src/store";
-import { socket } from "@/src/services/socket";
 import useSocket from "@/hooks/useSocket";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import MapTabBar from "@/components/MapTabBar";
 import { Avatar } from "react-native-paper";
-
+import * as Linking from "expo-linking";
 export default function RootLayout() {
   useSocket();
   const { getUpdates } = useBikeStore();
@@ -37,6 +32,18 @@ export default function RootLayout() {
       checkFirstLaunch();
     }
     isAuthenticated && getUpdates();
+
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      console.log("Opened via deep link:", url);
+      // parse URL and navigate inside app
+    });
+
+    // Check if app was opened from a deep link
+    Linking.getInitialURL().then((url) => {
+      if (url) console.log("Initial URL:", url);
+    });
+
+    return () => subscription.remove();
   }, []);
 
   // Show nothing until auth state is loaded
@@ -59,7 +66,7 @@ export default function RootLayout() {
   if (!isAuthenticated) {
     return (
       <ThemeProvider value={colorScheme === "dark" ? darkTheme : defaultTheme}>
-        <Stack initialRouteName="(auth)">
+        <Stack initialRouteName="(auth)/login">
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
@@ -108,7 +115,6 @@ export default function RootLayout() {
         }}
       >
         <Drawer.Screen name="(tabs)" />
-        <Drawer.Screen name="(auth)" />
         <Drawer.Screen name="(profile)" options={{ headerShown: false }} />
       </Drawer>
     </ThemeProvider>
