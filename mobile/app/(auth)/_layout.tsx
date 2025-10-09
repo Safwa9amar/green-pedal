@@ -1,5 +1,13 @@
 import { useAuthStore } from "@/src/store";
-import { Stack, useNavigation, usePathname, useRouter } from "expo-router";
+import { useAppLaunchStore } from "@/src/store/useAppLaunchStore";
+import {
+  Redirect,
+  Slot,
+  Stack,
+  useNavigation,
+  usePathname,
+  useRouter,
+} from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -15,11 +23,16 @@ import {
 const Authentication = () => {
   const router = useRouter();
   const path = usePathname();
-  const { isAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    isAuthenticated && router.replace("/");
-  }, [isAuthenticated]);
+  const { user, isAuthenticated } = useAuthStore();
+  const { isFirstLaunch } = useAppLaunchStore();
+
+  if (isFirstLaunch === null || isFirstLaunch === true) {
+    return <Redirect href={"/(public)/inedx"} />;
+  }
+  if (user && isAuthenticated) {
+    return <Redirect href="/(protected)/(tabs)" />;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -29,8 +42,8 @@ const Authentication = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#A5D6A7" />
       <View style={styles.header}>
         <View style={styles.tabRow}>
-          <TouchableOpacity onPress={() => router.push("./login ")}>
-            <Text style={[styles.tab, path === "/login" && styles.tabActive]}>
+          <TouchableOpacity onPress={() => router.push("/(auth)")}>
+            <Text style={[styles.tab, path === "/" && styles.tabActive]}>
               Log in
             </Text>
           </TouchableOpacity>
@@ -53,7 +66,7 @@ const Authentication = () => {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="login" />
+        <Stack.Screen name="index" />
         <Stack.Screen name="register" />
         <Stack.Screen
           name="forgot-password"

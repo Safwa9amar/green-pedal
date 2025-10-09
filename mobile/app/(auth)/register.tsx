@@ -4,7 +4,7 @@ import { TextInput, Button } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "expo-router";
 // Removed Google Auth imports
-import { register as apiRegister, login as apiLogin } from "@/api";
+import { register as apiRegister, login as apiLogin } from "@/src/api";
 import { useAuthStore } from "@/src/store";
 
 const RegisterScreen = () => {

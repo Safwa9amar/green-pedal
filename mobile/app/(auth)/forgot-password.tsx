@@ -64,7 +64,7 @@ export default function ForgotPassword() {
       const data = await res.json();
       if (res.ok) {
         Alert.alert("Success", data.message, [
-          { text: "OK", onPress: () => router.replace("/(auth)/login") },
+          { text: "OK", onPress: () => router.replace("/(auth)/") },
         ]);
       } else {
         Alert.alert("Error", data.message || "Failed to reset password.");
@@ -91,10 +91,9 @@ export default function ForgotPassword() {
             placeholder="Email"
           />
           <Button
-            style={{
-              backgroundColor: "#A5D6A7",
-            }}
-            textColor="white"
+            mode="contained"
+            textColor="#1B5E20"
+            theme={{ colors: { primary: "#C8E6C9" } }}
             loading={loading}
             onPress={handleRequestReset}
           >

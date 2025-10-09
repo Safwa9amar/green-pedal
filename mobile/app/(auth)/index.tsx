@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { View, StyleSheet, Image, Keyboard } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
 import { useAuthStore } from "@/src/store";
-import { login as apiLogin, getProfile } from "@/api";
+import { login as apiLogin, getProfile } from "@/src/api";
 import { useForm, Controller } from "react-hook-form";
 
 const LoginScreen = () => {
@@ -71,10 +71,6 @@ const LoginScreen = () => {
     }
   };
 
-  useEffect(() => {
-    isAuthenticated && router.push("/");
-  }, [isAuthenticated]);
-
   return (
     <View style={styles.formContainer}>
       <Image
@@ -139,7 +135,8 @@ const LoginScreen = () => {
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
-        theme={{ colors: { primary: "#00F5FF" } }}
+        textColor="#1B5E20"
+        theme={{ colors: { primary: "#C8E6C9" } }}
         loading={isSubmitting}
         disabled={isSubmitting}
       >

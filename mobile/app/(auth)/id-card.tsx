@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Button, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/src/store";
 import { useRouter } from "expo-router";
-import { uploadIdCard } from "@/api";
+import { uploadIdCard } from "@/src/api";
 
 const FormData = global.FormData;
 

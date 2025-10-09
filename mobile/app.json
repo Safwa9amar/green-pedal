@@ -3,14 +3,19 @@
     "name": "green-pedal",
     "slug": "green-pedal",
     "scheme": "greenpedal",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.astro.greenpedal"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +28,7 @@
       "predictiveBackGestureEnabled": false,
       "config": {
         "googleMaps": {
-          "apiKey": "083b169dea53dc4b01b18962fe45a752737a4dd6"
+          "apiKey": "AIzaSyAiEI2BVCsPafmhXs0KOF-2Qszv3nEzVTM"
         }
       },
       "permissions": [

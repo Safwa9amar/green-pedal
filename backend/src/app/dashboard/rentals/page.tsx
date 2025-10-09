@@ -7,19 +7,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-import { getRentalsData } from "@/lib/services/rentals";
+import { getAllRentals } from "./actions";
+import { calculateOngoingRideCost } from "@/lib/calculateRideCost";
 
 export default async function RentalsPage() {
-  const rentals = await getRentalsData();
+  const rentals = await getAllRentals();
 
-  const formatCost = (cost: number | null) => {
-    if (cost === null) return "N/A";
-    return `$${cost.toFixed(2)}`;
-  };
-  
   const formatDate = (date: Date | null) => {
     if (!date) return "N/A";
     return `${formatDistanceToNow(new Date(date))} ago`;
@@ -31,7 +33,9 @@ export default async function RentalsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Rental History</CardTitle>
-          <CardDescription>A log of all bike rentals in the system.</CardDescription>
+          <CardDescription>
+            A log of all bike rentals in the system.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -40,6 +44,7 @@ export default async function RentalsPage() {
                 <TableHead>User</TableHead>
                 <TableHead>Bike ID</TableHead>
                 <TableHead>Start Time</TableHead>
+                <TableHead>Duration</TableHead>
                 <TableHead>End Time</TableHead>
                 <TableHead>Cost</TableHead>
                 <TableHead>Status</TableHead>
@@ -48,13 +53,31 @@ export default async function RentalsPage() {
             <TableBody>
               {rentals.map((rental) => (
                 <TableRow key={rental.id}>
-                  <TableCell className="font-medium">{rental.userName}</TableCell>
+                  <TableCell className="font-medium">
+                    {rental?.user?.name}
+                  </TableCell>
                   <TableCell>{rental.bikeId}</TableCell>
-                  <TableCell>{formatDate(rental.startTime)}</TableCell>
-                  <TableCell>{rental.endTime ? formatDate(rental.endTime) : 'In Progress'}</TableCell>
-                  <TableCell>{formatCost(rental.cost)}</TableCell>
+                  <TableCell>{rental.startTime.toUTCString()}</TableCell>
                   <TableCell>
-                    <Badge variant={rental.status === 'ACTIVE' ? 'destructive' : 'secondary'}>
+                    {
+                      calculateOngoingRideCost(rental.startTime)
+                        .formattedDuration
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {rental.endTime
+                      ? formatDate(rental.endTime)
+                      : "In Progress"}
+                  </TableCell>
+                  <TableCell>
+                    {calculateOngoingRideCost(rental.startTime).cost}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        rental.status === "ACTIVE" ? "destructive" : "secondary"
+                      }
+                    >
                       {rental.status.toLowerCase()}
                     </Badge>
                   </TableCell>

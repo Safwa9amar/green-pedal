@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.astro.greenpedal",
+      "sha256_cert_fingerprints": [
+        "F6:C7:53:89:1B:DC:8B:9D:3A:D6:E8:A2:B7:5F:05:30:5F:8C:A3:84:D0:D8:1C:FB:FA:A6:C7:47:B3:F5:86:A6"
+      ]
+    }
+  }
+]

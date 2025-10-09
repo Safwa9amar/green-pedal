@@ -53,6 +53,13 @@ app.prepare().then(() => {
       // Example: emit a welcome message
       socket.emit("connected", { message: "You are connected to the server!" });
 
+      socket.on("join", ({ room }) => {
+        socket.join(room);
+        console.log(`✅ Socket ${socket.id} joined room ${room}`);
+        // optional confirmation back to client
+        socket.emit("joined", { room });
+      });
+
       // Handle disconnection
       socket.on("disconnect", (reason) => {
         console.log(`❌ Client disconnected: ${socket.id} (${reason})`);

@@ -196,5 +196,9 @@ export const rentalApi = {
     });
     return respone.data;
   },
+  getRentalById: async function (id: string) {
+    let respone = await api.get(`/rental/id=${id}`);
+    return respone.data;
+  },
 };
 export default api;

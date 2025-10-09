@@ -22,7 +22,7 @@ const VerificationScreen = () => {
         { email, code }
       );
       setMsg(res.data.message || "Email confirmed! You can now log in.");
-      setTimeout(() => router.replace("/login"), 1500);
+      setTimeout(() => router.replace("/(auth)"), 1500);
     } catch (error: any) {
       let errMsg = "Verification failed. Please try again.";
       if (

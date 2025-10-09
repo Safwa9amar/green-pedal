@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { rentalApi } from "@/src/services/api"; // Adjust if path differs
+import { rentalApi } from "@/src/services/api";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { socket } from "../services/socket";
 
@@ -19,64 +19,41 @@ interface Rental {
 interface RentalState {
   currentRental: Rental | null;
   elapsedTime: number;
-  isConnected: boolean;
   loading: boolean;
   error: string | null;
 
   // Actions
   connectSocket: () => void;
-  disconnectSocket: () => void;
   startRental: (bikeId: string) => Promise<void>;
   endRental: () => Promise<void>;
   resetRental: () => void;
 }
 
+let timer: NodeJS.Timeout | null = null;
+
 export const useRentalStore = create<RentalState>((set, get) => ({
   currentRental: null,
   elapsedTime: 0,
-  isConnected: false,
   loading: false,
   error: null,
 
   /** 🔌 Connect to Socket Server */
   connectSocket: () => {
-    const { token, user } = useAuthStore.getState();
-    if (!token || !user?.id) return;
+    const { user } = useAuthStore.getState();
+    if (!user?.id) return;
 
-    if (socket.connected) return;
-
-    socket.auth = { token };
-    socket.connect();
-
-    socket.on("connect", () => {
-      console.log("✅ Socket connected:", socket.id);
-      socket.emit("join", `user:${user.id}`);
-      set({ isConnected: true });
-    });
-
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
-      set({ isConnected: false });
-    });
-
-    socket.on("rental:timeUpdate", (data: any) => {
-      set({ elapsedTime: data.elapsed });
-      console.log(data.elapsed);
-    });
+    socket.emit("join", `user:${user.id}`);
 
     socket.on("rental:ended", (data: any) => {
       console.log("📩 Rental ended via socket:", data);
+      if (timer) clearInterval(timer);
+      timer = null;
+
       set({
         currentRental: { ...data, status: "COMPLETED" },
         elapsedTime: 0,
       });
     });
-  },
-
-  /** 🔌 Disconnect Socket */
-  disconnectSocket: () => {
-    socket.disconnect();
-    set({ isConnected: false });
   },
 
   /** 🚴 Start Rental */
@@ -86,9 +63,7 @@ export const useRentalStore = create<RentalState>((set, get) => ({
       const data = await rentalApi.startRide(bikeId);
       const rental = data.rental;
 
-      // connect socket if not connected
-      if (!get().isConnected) get().connectSocket();
-
+      const startTime = new Date(rental.startTime).getTime();
       set({
         currentRental: {
           id: rental.id,
@@ -99,6 +74,13 @@ export const useRentalStore = create<RentalState>((set, get) => ({
         elapsedTime: 0,
         loading: false,
       });
+
+      // 🕒 Start client-side timer
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        set({ elapsedTime: elapsed });
+      }, 1000) as any;
     } catch (err: any) {
       console.error("Failed to start rental:", err);
       set({ error: "Failed to start rental", loading: false });
@@ -113,8 +95,10 @@ export const useRentalStore = create<RentalState>((set, get) => ({
 
       set({ loading: true });
       const response = await rentalApi.endRide(currentRental.id);
-
       socket.emit("rental:end", { rentalId: currentRental.id });
+
+      if (timer) clearInterval(timer);
+      timer = null;
 
       set({
         currentRental: { ...response.rental, status: "COMPLETED" },
@@ -129,11 +113,17 @@ export const useRentalStore = create<RentalState>((set, get) => ({
 
   /** ♻️ Reset state */
   resetRental: () => {
+    if (timer) clearInterval(timer);
+    timer = null;
+
     set({
       currentRental: null,
       elapsedTime: 0,
       loading: false,
       error: null,
     });
+  },
+  getCurrentActiveRental: async (id: string) => {
+    const rental = await rentalApi.getRentalById(id);
   },
 }));

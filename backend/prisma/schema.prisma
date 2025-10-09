@@ -107,7 +107,7 @@ model BikeLocation {
 }
 
 model Rental {
-  id        Int          @id @default(autoincrement())
+  id        String       @id @default(uuid())
   userId    String
   bikeId    String
   startTime DateTime

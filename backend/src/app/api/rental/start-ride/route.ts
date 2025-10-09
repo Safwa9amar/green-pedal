@@ -24,7 +24,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing bikeId" }, { status: 400 });
     }
 
-    // 1️⃣ Create rental record
+    // check if user already start rental
+    const hasRental = await prisma.rental.findFirst({
+      where: { userId: decoded.userId, status: "ACTIVE" },
+    });
+    if (hasRental?.status === "ACTIVE")
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Rental started successfully",
+          rental: hasRental,
+        },
+        { status: 201 }
+      );
+
     const rental = await prisma.rental.create({
       data: {
         startTime: new Date(),
@@ -33,22 +46,6 @@ export async function POST(req: NextRequest) {
         userId: decoded.userId,
       },
     });
-
-    // 2️⃣ Get the global socket instance
-    const io = getIO();
-
-    // 3️⃣ Start broadcasting elapsed time to the user
-    const startTime = Date.now();
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      io.to(`user:${decoded.userId}`).emit("rental:timeUpdate", {
-        rentalId: rental.id,
-        elapsed,
-      });
-    }, 1000);
-
-    // Optional stop after a safety timeout (e.g., 1h)
-    setTimeout(() => clearInterval(interval), 60 * 60 * 1000);
 
     return NextResponse.json(
       { success: true, message: "Rental started successfully", rental },

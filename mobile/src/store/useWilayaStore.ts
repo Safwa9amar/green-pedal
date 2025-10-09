@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import data from "@/api/dz.json";
+import data from "@/src/api/dz.json";
 
 export interface Wilaya {
   city: string;
