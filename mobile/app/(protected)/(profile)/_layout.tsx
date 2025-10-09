@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 24,
-
     flexDirection: "row",
   },
   backBtn: {

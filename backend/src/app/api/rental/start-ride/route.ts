@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     // check if user already start rental
     const hasRental = await prisma.rental.findFirst({
       where: { userId: decoded.userId, status: "ACTIVE" },
+      include: { bike: true },
     });
     if (hasRental?.status === "ACTIVE")
       return NextResponse.json(
@@ -45,7 +46,13 @@ export async function POST(req: NextRequest) {
         status: "ACTIVE",
         userId: decoded.userId,
       },
+      include: { bike: true },
     });
+    
+    await prisma.bike.update({
+      where : {id : bikeId},
+      data : {status :"IN_USE"}
+    })
 
     return NextResponse.json(
       { success: true, message: "Rental started successfully", rental },

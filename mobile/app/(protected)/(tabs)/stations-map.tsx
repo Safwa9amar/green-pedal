@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { View, StyleSheet, Linking } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { useBikeStore } from "@/src/store";
@@ -6,6 +6,7 @@ import { useUserLocation } from "@/src/store/useUserLocation";
 import { useRouteStore } from "@/src/store/useRouteStore";
 import StationInfoCard from "@/components/StationInfoCard";
 import { useSearchParams } from "expo-router/build/hooks";
+import { useFocusEffect } from "expo-router";
 
 export default function HomeScreen() {
   const { stations } = useBikeStore();
@@ -26,10 +27,10 @@ export default function HomeScreen() {
         {
           latitude: userLocation.latitude,
           longitude: userLocation.longitude,
-          latitudeDelta: 0.1, // zoom level
+          latitudeDelta: 0.01, // zoom level
           longitudeDelta: 0.01,
         },
-        5000 // animation duration (ms)
+        2000 // animation duration (ms)
       );
     }
   }, [userLocation]);

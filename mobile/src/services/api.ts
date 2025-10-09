@@ -29,6 +29,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const { refreshToken, setToken, logout } = useAuthStore.getState();
     // ⛔ If no refresh token or already retried, logout
+
     if (
       error.response?.status === 401 &&
       refreshToken &&
@@ -190,14 +191,19 @@ export const rentalApi = {
     });
     return respone.data;
   },
-  endRide: async function (bikeId: string) {
+  endRide: async function (rentalID: string) {
+    
     let respone = await api.post("/rental/end-ride", {
-      data: { bikeId },
+      data: { rentalID },
     });
     return respone.data;
   },
   getRentalById: async function (id: string) {
     let respone = await api.get(`/rental/id=${id}`);
+    return respone.data;
+  },
+  getUserRentals: async function () {
+    let respone = await api.get("rental");
     return respone.data;
   },
 };

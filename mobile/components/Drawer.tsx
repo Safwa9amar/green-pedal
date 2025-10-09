@@ -136,6 +136,7 @@ export default function CustomDrawer({ onLogout }: { onLogout: () => void }) {
               user?.photo
                 ? {
                     uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}`,
+                    cache: "reload",
                   }
                 : { uri: user?.avatar }
             }
@@ -144,7 +145,9 @@ export default function CustomDrawer({ onLogout }: { onLogout: () => void }) {
             }}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/(profile)/settings")}>
+        <TouchableOpacity
+          onPress={() => router.push("/(protected)/(profile)/settings")}
+        >
           <Text
             style={{
               fontSize: 20,

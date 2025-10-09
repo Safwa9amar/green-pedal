@@ -23,9 +23,8 @@ export default function RootLayout() {
   const { getUpdates } = useBikeStore();
   const colorScheme = useColorScheme();
   const { isAuthenticated, user, logout } = useAuthStore();
-  const { isFirstLaunch, checkFirstLaunch } = useAppLaunchStore();
   const router = useRouter();
-  // Only check first launch if not already determined
+
   useEffect(() => {
     isAuthenticated && getUpdates();
   }, []);

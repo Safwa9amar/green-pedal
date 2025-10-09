@@ -213,7 +213,9 @@ const TransactionItem = ({
         )}
       </View>
       <View style={styles.transactionInfo}>
-        <Text style={styles.transactionTitle}>{title}</Text>
+        <Text style={styles.transactionTitle}>
+          {isCredit ? title : "Usage"}
+        </Text>
         <Text style={styles.transactionDate}>{date}</Text>
       </View>
       <Text

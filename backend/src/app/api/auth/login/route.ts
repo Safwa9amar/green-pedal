@@ -95,12 +95,12 @@ export async function POST(req: NextRequest) {
     }
 
     const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, email: user.email },
       process.env.JWT_SECRET!,
       { expiresIn: "10s" }
     );
     const refreshToken = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, email: user.email },
       process.env.JWT_REFRESH_SECRET!
     );
 

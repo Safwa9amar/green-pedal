@@ -178,7 +178,10 @@ export default function ProfileSettings() {
       {/* Profile Photo */}
       <View style={styles.avatarContainer}>
         <TouchableOpacity onPress={handleImagePick}>
-          <Image source={{ uri: avatar }} style={styles.avatar} />
+          <Image
+            source={{ uri: avatar, cache: "reload" }}
+            style={styles.avatar}
+          />
           <View style={styles.editIcon}>
             <Ionicons name="camera" size={20} color="#fff" />
           </View>

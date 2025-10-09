@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { DecodedToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
@@ -11,10 +12,13 @@ export async function GET(req: NextRequest) {
     );
 
   try {
-    const user = jwt.verify(token, process.env.JWT_REFRESH_SECRET!);
+    const user = jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET!
+    ) as DecodedToken;
 
     const newAccessToken = jwt.sign(
-      { userId: (user as any).userId },
+      { userId: user.userId, email: user.email, role: user.role },
       process.env.JWT_SECRET!,
       { expiresIn: "15m" }
     );

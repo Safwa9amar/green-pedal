@@ -137,7 +137,10 @@ export default function WelcomeScreen() {
           onPress={() => router.push("/(protected)/(profile)/my-wallet")}
         >
           <Ionicons name="wallet-outline" size={26} color="#fff" />
-          <Text style={styles.actionText}>Wallet</Text>
+          <Text style={styles.actionText}>Wallet </Text>
+          <Text style={{ fontSize: 10, color: "#fff" }}>
+            {user?.balance} DZD
+          </Text>
         </TouchableOpacity>
       </MotiView>
       {/* ECO TIP (Gemini) */}

@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Alert } from "react-native";
 import { Text } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useAuthStore, User } from "@/src/store";
-import { useNavigation, useRouter } from "expo-router";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 import { getProfile, uploadIdCard } from "@/src/api";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
 import { useIdCardVerification } from "@/src/hooks/useIdCardVerification";
 import { useIsFocused } from "@react-navigation/native";
+import { rentalApi } from "@/src/services/api";
+import { useRentalStore } from "@/src/store/useRentalStore";
 
 const { width } = Dimensions.get("window");
 const SCAN_SIZE = width * 0.7;
 
 export default function UnlockBike() {
   const isFocused = useIsFocused();
+  const { currentRental, resetRental } = useRentalStore();
   const router = useRouter();
   const { user, login, token } = useAuthStore();
   const { idCardVerified } = user as User;
@@ -56,9 +59,30 @@ export default function UnlockBike() {
     router.push(`/(protected)/(tabs)/unlock/bike-details?${result.data}`);
   };
 
-  useEffect(() => {
-    isFocused && setScanned(false);
-  }, [isFocused]);
+  useFocusEffect(
+    useCallback(() => {
+      isFocused && setScanned(false);
+    }, [isFocused])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      // Check for active rental and redirect immediately
+      if (currentRental?.status === "COMPLETED") {
+        // Only reset if the rental was completed but is still lingering
+        resetRental();
+      } else if (currentRental?.status === "ACTIVE") {
+        router.replace("/(protected)/(tabs)/unlock/active-rental");
+      }
+
+      // --- D. Cleanup Function (Runs when screen loses focus/unmounts) ---
+      return () => {
+        console.log("BikeDetailsScreen: Blur/Cleanup");
+        // socket.off("bike:updated", handleBikeUpdate);
+        // Note: We don't reset the state here, only on the next focus
+        // to avoid a flickering effect when another screen is focused.
+      };
+    }, [currentRental, resetRental, router])
+  );
 
   if (!permission) {
     return (

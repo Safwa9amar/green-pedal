@@ -17,16 +17,18 @@ import {
 import { MotiView } from "moti";
 import { useRouter, useSearchParams } from "expo-router/build/hooks";
 import { bikesAPI, rentalApi } from "@/src/services/api";
-import { Bike, useAuthStore } from "@/src/store";
+import { useAuthStore } from "@/src/store";
 import BikeLoader from "@/components/BikeLoader";
 import BatteryLevel from "@/components/BatteryLevel";
 import PricingInfoCard from "@/components/PricingInfoModal";
 import { socket } from "@/src/services/socket";
 import { useRentalStore } from "@/src/store/useRentalStore";
+import type { Bike } from "@/src/types";
+import { useFocusEffect } from "expo-router";
 
 export default function BikeDetailsScreen() {
   const { user } = useAuthStore();
-  const { startRental, connectSocket, elapsedTime, currentRental } =
+  const { startRental, resetRental, connectSocket, currentRental } =
     useRentalStore();
   const SearchParams = useSearchParams();
   const router = useRouter();
@@ -35,10 +37,13 @@ export default function BikeDetailsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bikeId = SearchParams.get("id") as string;
+
   const fetchBike = useCallback(async () => {
     try {
       setError(null);
       const data = await bikesAPI.getBikeByID(bikeId);
+      console.log(data);
+
       setBike(data?.bike);
     } catch (err) {
       console.error(err);
@@ -48,14 +53,6 @@ export default function BikeDetailsScreen() {
       setRefreshing(false);
     }
   }, [SearchParams]);
-
-  useEffect(() => {
-    fetchBike();
-    socket.on("bike:updated", (bike: Bike) => {
-      setBike(bike);
-    });
-    connectSocket();
-  }, []);
 
   const startRide = async () => {
     if (user && user.balance === 0) {
@@ -76,6 +73,7 @@ export default function BikeDetailsScreen() {
 
     try {
       await startRental(bikeId); // ✅ use Zustand action instead of direct API
+      router.push("/(protected)/(tabs)/unlock/active-rental");
     } catch (err) {
       console.error("Failed to start ride:", err);
       Alert.alert("Error", "Could not start the ride.");
@@ -86,8 +84,11 @@ export default function BikeDetailsScreen() {
     fetchBike();
   }, [fetchBike]);
 
-  if (loading && !bike) return <BikeLoader />;
+  useEffect(() => {
+    fetchBike();
+  }, []);
 
+  if (!bike && loading) return <BikeLoader />;
   if (error)
     return (
       <View style={styles.centered}>
@@ -159,7 +160,10 @@ export default function BikeDetailsScreen() {
         style={styles.imageWrapper}
       >
         <Image
-          source={{ uri: `${process.env.EXPO_PUBLIC_SERVER_URL}${bike.photo}` }}
+          source={{
+            uri: `${process.env.EXPO_PUBLIC_SERVER_URL}${bike.photo}`,
+            cache: "reload",
+          }}
           style={styles.bikeImage}
           resizeMode="contain"
         />
@@ -170,7 +174,7 @@ export default function BikeDetailsScreen() {
         <Text style={styles.sectionTitle}>Specifications</Text>
         <View style={styles.specGrid}>
           {bike?.specs?.length ? (
-            bike.specs.map((spec, index) => (
+            bike.specs.map((spec: any, index: any) => (
               <MotiView
                 key={index}
                 from={{ opacity: 0, translateY: 20 }}
@@ -178,7 +182,7 @@ export default function BikeDetailsScreen() {
                 transition={{ delay: index * 100, duration: 400 }}
                 style={styles.specCard}
               >
-                <Ionicons
+                <MaterialCommunityIcons
                   name={(spec.icon as any) || "information-circle-outline"}
                   size={22}
                   color="#A5D6A7"
@@ -209,8 +213,6 @@ export default function BikeDetailsScreen() {
           onPress={startRide}
         >
           <Text style={styles.rentText}>
-            {elapsedTime}
-            {"  "}
             {bike.status === "AVAILABLE"
               ? "Rent Bike"
               : bike.status.toLowerCase().replace("_", " ")}

@@ -59,7 +59,6 @@ export default function PricingInfoModal() {
 const styles = StyleSheet.create({
   infoButton: {
     alignSelf: "flex-end",
-    padding: 8,
   },
   overlay: {
     flex: 1,

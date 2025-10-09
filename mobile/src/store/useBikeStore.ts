@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { Bike } from "./useRideStore";
 import { BikeStation } from "./useStationStore";
 import { socket } from "../services/socket";
 import api from "@/src/api";
+import { Bike } from "../types";
 
 export interface BikeState {
   bikes: Bike[];

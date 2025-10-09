@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 export interface DecodedToken {
   userId: string;
   role: string;
+  email: string;
 }
 
 export function verifyToken(token: string): DecodedToken | null {
