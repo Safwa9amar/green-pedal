@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
+import Script from "next/script";
 export const metadata: Metadata = {
   title: "Green Pedal Admin",
   description: "Admin Dashboard for Green Pedal bike sharing system.",
@@ -14,6 +15,33 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "MobileApplication",
+              name: "Green Pedal",
+              operatingSystem: "Android, iOS",
+              applicationCategory: "TravelApplication",
+              description:
+                "Green Pedal is a smart eco-friendly bike sharing app that promotes sustainable mobility and clean cities.",
+              url: "https://greenpedal.ataa-platform.com",
+              image:
+                "https://greenpedal.ataa-platform.com/assets/og-greenpedal.jpg",
+              author: {
+                "@type": "Organization",
+                name: "Green Pedal",
+              },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+            }),
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

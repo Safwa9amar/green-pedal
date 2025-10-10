@@ -53,6 +53,7 @@
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",
+    "motion": "^12.23.24",
     "multer": "^2.0.2",
     "next": "15.3.3",
     "node-fetch": "^3.3.2",

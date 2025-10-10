@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
     const checkout = await MychargilyClient.createCheckout({
       amount: amount || 1000, // 💰 Amount in centimes (e.g., 50000 = 500 DZD)
       currency: "dzd",
-      // success_url: "http://geeenpedal.com",
-      success_url: process.env.APP_PAYMENT_STATUS_SUCCESS as string,
+      success_url: "http://geeenpedal.com",
+      // success_url: process.env.APP_PAYMENT_STATUS_SUCCESS as string,
 
       description: "Recharge wallet balance",
       locale: "ar",
