@@ -1,66 +1,59 @@
-// server.js
-import { createServer } from "node:http";
+import express from "express";
+import http from "http";
 import next from "next";
 import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = 9002;
 
-const app = next({ dev, hostname, port });
-const handler = app.getRequestHandler();
+const nextApp = next({ dev, hostname, port });
+const handler = nextApp.getRequestHandler();
 
-app.prepare().then(() => {
-  const httpServer = createServer(handler);
+nextApp.prepare().then(() => {
+  const app = express();
+  const server = http.createServer(app);
 
-  // ✅ Create socket server
-  const io = new Server(httpServer, {
+  // ✅ Initialize Socket.IO
+  const io = new Server(server, {
     cors: {
-      origin: "*", // adjust for security
+      origin: "*", // ⚠️ adjust for production security
     },
   });
 
-  // ✅ Attach to global so all files can use it
+  // Make Socket.IO globally available if needed
   global._io = io;
 
+  // ✅ Socket.IO logic
   io.on("connection", (socket) => {
     try {
       const { token } = socket.handshake.auth;
 
-      // Check if token exists
       if (!token) {
         console.log("⛔ No token provided, disconnecting client...");
         socket.disconnect(true);
         return;
       }
 
-      // Verify token
       const decoded = verifyToken(token);
-
       if (!decoded || !decoded.userId) {
         console.log("⛔ Invalid token, disconnecting client...");
         socket.disconnect(true);
         return;
       }
 
-      console.log(
-        `🔌 Client connected: ${socket.id}, User ID: ${decoded.userId}`
-      );
-
-      // You can store user info for later use
+      console.log(`🔌 Client connected: ${socket.id}, User ID: ${decoded.userId}`);
       socket.data.user = decoded;
 
-      // Example: emit a welcome message
       socket.emit("connected", { message: "You are connected to the server!" });
 
       socket.on("join", ({ room }) => {
         socket.join(room);
         console.log(`✅ Socket ${socket.id} joined room ${room}`);
-        // optional confirmation back to client
         socket.emit("joined", { room });
       });
 
-      // Handle disconnection
       socket.on("disconnect", (reason) => {
         console.log(`❌ Client disconnected: ${socket.id} (${reason})`);
       });
@@ -70,22 +63,30 @@ app.prepare().then(() => {
     }
   });
 
-  httpServer
-    .once("error", (err) => {
-      console.error(err);
-      process.exit(1);
-    })
-    .listen(port, () => {
-      console.log(`✅ Ready on http://${hostname}:${port}`);
-    });
-});
-import jwt from "jsonwebtoken";
+  // ✅ Example Express API route
+  app.get("/api/hello", (req, res) => {
+    res.json({ message: "Hello from Express + Next.js + Socket.IO 🚀" });
+  });
 
-export function verifyToken(token) {
+  // ✅ Let Next.js handle all other routes
+  app.all("*", (req, res) => handler(req, res));
+
+  // ✅ Start the server
+  server.listen(port, () => {
+    console.log(`
+      ▲ Next.js + Express + Socket.IO Server
+      - Local:      http://${hostname}:${port}
+      - Network:    http://192.168.1.9:${port}
+      - Env:        ${dev ? "Development" : "Production"}
+    `);
+  });
+});
+
+function verifyToken(token) {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
-    console.log(error);
+    console.error("JWT verification error:", error.message);
     return null;
   }
 }

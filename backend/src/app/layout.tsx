@@ -28,15 +28,14 @@ export default function RootLayout({
               description:
                 "Green Pedal is a smart eco-friendly bike sharing app that promotes sustainable mobility and clean cities.",
               url: "https://greenpedal.ataa-platform.com",
-              image:
-                "https://greenpedal.ataa-platform.com/assets/og-greenpedal.jpg",
+              image: "https://green-pedal.com/assets/og-greenpedal.jpg",
               author: {
                 "@type": "Organization",
                 name: "Green Pedal",
               },
               offers: {
                 "@type": "Offer",
-                price: "0",
+                price: "2",
                 priceCurrency: "USD",
               },
             }),

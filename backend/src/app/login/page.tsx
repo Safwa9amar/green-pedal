@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Bike } from "lucide-react";
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/layout/Logo";
 import { login } from "./actions";
+import { useActionState } from "react";
 
 export default function LoginPage() {
+  const [state, action, pending] = useActionState(login, undefined);
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background p-4">
       <Card className="mx-auto w-full max-w-sm">
@@ -33,7 +34,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-4" action={login}>
+          <form className="grid gap-4" action={action}>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -41,20 +42,15 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 placeholder="admin@example.com"
-                required
-                defaultValue="admin@example.com"
               />
+              {state?.errors?.email && <p>{state.errors.email}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                required
-                defaultValue="password"
-              />
+              <Input id="password" type="password" name="password" />
             </div>
+            {state?.errors?.password && <p>{state.errors.password}</p>}
+
             <Button variant={"default"} type="submit" className="w-full">
               Login
             </Button>
