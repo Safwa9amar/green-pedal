@@ -1,6 +1,7 @@
 import React from "react";
 import { fadeIn } from "./animation";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Nav() {
   return (
@@ -30,9 +31,12 @@ export default function Nav() {
         <a href="#download" className="hover:text-gray-900">
           Download
         </a>
-        <button className="ml-2 bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:opacity-95">
+        <Link
+          href={"./login"}
+          className="ml-2 bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:opacity-95"
+        >
           Sign in
-        </button>
+        </Link>
       </nav>
       <div className="md:hidden">
         <button className="p-2 rounded-md bg-gray-100">☰</button>

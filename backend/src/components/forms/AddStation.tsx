@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -17,9 +16,12 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { StationFormData } from "@/lib/types";
 import { toast } from "react-toastify";
-import MapPicker from "./MapPicker";
 import { useRouter } from "next/navigation";
 import { createStation } from "@/app/dashboard/stations/actions";
+import dynamic from "next/dynamic";
+
+// ✅ Proper dynamic import for MapPicker (client-only)
+const MapPicker = dynamic(() => import("./MapPicker"), { ssr: false });
 
 export default function AddStation() {
   const { refresh } = useRouter();

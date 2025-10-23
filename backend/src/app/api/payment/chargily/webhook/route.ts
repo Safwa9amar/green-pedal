@@ -3,8 +3,8 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { ChargilyWebhookEvent } from "@/lib/types";
 import { getIO } from "@/lib/socket";
-const io = getIO();
 
+// const io = getIO();
 export async function POST(req: NextRequest) {
   try {
     const secret = process.env.CHARGILY_SECRET_KEY as string;
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      io.emit("balance:update", { userId, newBalance: user.balance });
+      // io.emit("balance:update", { userId, newBalance: user.balance });
 
       console.log(`💰 Updated user ${userId} balance to ${user.balance}`);
     }

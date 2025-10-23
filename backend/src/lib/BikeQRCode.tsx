@@ -22,7 +22,7 @@ export default function BikeQRCode({ bikeId }: { bikeId: string }) {
   const handlePrint = () => {
     if (!qrCode) return;
 
-    const printWindow = window.open("", "_blank", "width=400,height=400");
+    const printWindow = window?.open("", "_blank", "width=400,height=400");
     if (printWindow) {
       printWindow.document.write(`
         <html>

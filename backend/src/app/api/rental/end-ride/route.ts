@@ -1,7 +1,7 @@
 import { verifyToken } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getIO } from "@/lib/socket";
+// import { getIO } from "@/lib/socket";
 import { calculateOngoingRideCost } from "@/lib/calculateRideCost";
 
 export async function POST(req: NextRequest) {
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Optionally, emit via socket if needed (already imported getIO)
-    getIO()?.emit("rental:ended", updatedRental);
+    // getIO()?.emit("rental:ended", updatedRental);
 
     return NextResponse.json({ success: true, message: "Rental ended successfully", rental: updatedRental }, { status: 200 });
   } catch (error) {

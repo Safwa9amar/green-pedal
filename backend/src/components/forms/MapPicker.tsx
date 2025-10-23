@@ -22,28 +22,6 @@ function LocationMarker({
   onSelect: (lat: number, lng: number) => void;
 }) {
   const [position, setPosition] = useState<[number, number] | null>(null);
-  // const map = useMap();
-
-  // useEffect(() => {
-  //   if (!navigator.geolocation) {
-  //     console.error("Geolocation not supported");
-  //     return;
-  //   }
-
-  //   navigator.geolocation.getCurrentPosition(
-  //     (pos) => {
-  //       const { latitude, longitude } = pos.coords;
-  //       const newPos: [number, number] = [latitude, longitude];
-  //       setPosition(newPos);
-  //       map.setView(newPos, 13); // center map on user
-  //       onSelect(latitude, longitude);
-  //     },
-  //     (err) => {
-  //       console.error("Geolocation error:", err);
-  //     },
-  //     { enableHighAccuracy: true }
-  //   );
-  // }, [map, onSelect]);
 
   useMapEvents({
     click(e) {
@@ -61,6 +39,9 @@ export default function MapPicker({
 }: {
   onSelect: (lat: number, lng: number) => void;
 }) {
+  const isServer = typeof window === "undefined";
+
+  if (isServer) return;
   return (
     <div className="h-96 w-full rounded-lg overflow-hidden">
       <MapContainer

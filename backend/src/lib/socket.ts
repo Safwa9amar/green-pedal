@@ -44,7 +44,8 @@ export function getIO(): SocketIOServer {
   }
 
   if (!io) {
-    throw new Error("❌ Socket.io not initialized! Call initIO(server) first.");
+    return null as any
+    // throw new Error("❌ Socket.io not initialized! Call initIO(server) first.");
   }
 
   return io;

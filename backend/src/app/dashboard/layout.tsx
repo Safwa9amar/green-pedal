@@ -1,7 +1,11 @@
-import React from 'react';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
-import Header from '@/components/layout/Header';
-import SidebarNav from '@/components/layout/SidebarNav';
+import React from "react";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import Header from "@/components/layout/Header";
+import SidebarNav from "@/components/layout/SidebarNav";
 
 export default function DashboardLayout({
   children,
@@ -9,8 +13,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Always open sidebar on desktop by default, let user collapse it.
-  const isServer = typeof window === 'undefined';
-  const defaultOpen = isServer ? true : window.innerWidth > 768;
+  const isServer = typeof window === "undefined";
+  const defaultOpen = isServer ? true : window?.innerWidth > 768;
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>

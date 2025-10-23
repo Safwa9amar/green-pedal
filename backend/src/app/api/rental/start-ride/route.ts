@@ -1,7 +1,7 @@
 import { verifyToken } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getIO } from "@/lib/socket";
+// import { getIO } from "@/lib/socket";
 
 export async function POST(req: NextRequest) {
   try {

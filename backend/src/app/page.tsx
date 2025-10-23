@@ -14,7 +14,7 @@ import Nav from "@/components/landing-page/Nav";
 import { redirect } from "next/navigation";
 
 export default function GreenPedalLandingPage() {
-  return redirect("./dashboard");
+  // return redirect("./  ");
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-800">
       {/* NAV */}

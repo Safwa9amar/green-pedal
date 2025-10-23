@@ -7,7 +7,7 @@ import { uploadImage } from "@/lib/uploadImage";
 import { BikeStation } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-const io = getIO();
+// const io = getIO();
 
 // ✅ Get all stations
 export async function getAllStations() {
@@ -28,7 +28,6 @@ export async function createStation(formData: FormData) {
     const latitude = Number(formData.get("latitude"));
     const longitude = Number(formData.get("longitude"));
     const photo = formData.get("photo") as File | null;
-    console.log(photo);
 
     // ✅ Upload photo if provided
     let imageUrl: string | null = null;
@@ -56,7 +55,7 @@ export async function createStation(formData: FormData) {
     });
 
     //  Notify all connected clients
-    io.emit("stations:update", await getAllStations());
+    // io.emit("stations:update", await getAllStations());
 
     return station;
   } catch (error) {
@@ -75,7 +74,7 @@ export async function deleteStation(formData: FormData) {
   });
 
   // TODO : delete also photo of station
-  io.emit("stations:update", await getAllStations());
+  // io.emit("stations:update", await getAllStations());
 
   // Revalidate the stations page
   revalidatePath("/dashboard/stations");
@@ -96,7 +95,7 @@ export async function updateStation(id: string, data: Partial<BikeStation>) {
     data,
   });
 
-  io.emit("stations:update", await getAllStations());
+  // io.emit("stations:update", await getAllStations());
 
   return station;
 }

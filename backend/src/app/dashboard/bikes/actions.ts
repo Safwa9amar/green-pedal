@@ -8,7 +8,7 @@ import { writeFile } from "fs/promises";
 import { getIO } from "@/lib/socket";
 import { getAllStations } from "../stations/actions";
 import { uploadImage } from "@/lib/uploadImage";
-const io = getIO();
+// const io = getIO();
 
 export async function getALlBikes(): Promise<Bike[]> {
   let bikes = await prisma.bike.findMany({
@@ -33,8 +33,8 @@ export async function SetBikeToMaintenance(formData: FormData) {
       specs: true,
     },
   });
-  io.emit("stations:update", await getAllStations()); // broadcast new stations list
-  io.emit("bike:updated", updatedBike);
+  // io.emit("stations:update", await getAllStations()); // broadcast new stations list
+  // io.emit("bike:updated", updatedBike);
 
   revalidatePath("/dashboard/bikes");
 }
@@ -53,8 +53,8 @@ export async function SetBikeToAvailable(formData: FormData) {
       specs: true,
     },
   });
-  io.emit("stations:update", await getAllStations()); // broadcast new stations list
-  io.emit("bike:updated", updatedBike);
+  // io.emit("stations:update", await getAllStations()); // broadcast new stations list
+  // io.emit("bike:updated", updatedBike);
 
   revalidatePath("/dashboard/bikes");
 }
@@ -70,7 +70,7 @@ export async function deleteBike(formData: FormData) {
     const photoPath = path.join(process.cwd(), "public", bike.photo);
     fs.unlinkSync(photoPath);
   }
-  io.emit("stations:update", await getAllStations()); // broadcast new stations list
+  // io.emit("stations:update", await getAllStations()); // broadcast new stations list
   revalidatePath("/dashboard/bikes");
 }
 
@@ -140,7 +140,7 @@ export async function createBike(formData: FormData) {
     });
 
     // ✅ Notify all clients
-    io.emit("stations:update", await getAllStations());
+    // io.emit("stations:update", await getAllStations());
 
     // ✅ Revalidate dashboard
     revalidatePath("/dashboard/bikes");
@@ -200,8 +200,8 @@ export async function updateBike(formData: FormData) {
     });
 
     // ✅ Notify clients via socket
-    io.emit("stations:update", await getAllStations());
-    io.emit("bike:updated", updatedBike);
+    // io.emit("stations:update", await getAllStations());
+    // io.emit("bike:updated", updatedBike);
 
     // ✅ Revalidate cache
     revalidatePath("/dashboard/bikes");

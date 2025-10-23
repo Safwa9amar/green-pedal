@@ -16,6 +16,7 @@ import { useActionState } from "react";
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, undefined);
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background p-4">
       <Card className="mx-auto w-full max-w-sm">
