@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { getAllRentals } from "./actions";
 import { calculateOngoingRideCost } from "@/lib/calculateRideCost";
-
+export const dynamic = "force-dynamic";
 export default async function RentalsPage() {
   const rentals = await getAllRentals();
 

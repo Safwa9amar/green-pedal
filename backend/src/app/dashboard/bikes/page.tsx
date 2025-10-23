@@ -4,7 +4,7 @@ import { AddBike } from "@/components/forms/AddBike";
 import { getAllStations } from "../stations/actions";
 import BikesTable from "./BikesTable";
 import { getALlBikes } from "./actions";
-
+export const dynamic = "force-dynamic";
 export default async function BikesPage() {
   const bikes = await getALlBikes(); // ✅ Safe on server
   const stations = await getAllStations();

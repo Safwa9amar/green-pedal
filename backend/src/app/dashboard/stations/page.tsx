@@ -20,7 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AddStation from "@/components/forms/AddStation";
 import { deleteStation, getAllStations } from "./actions";
-
+export const dynamic = "force-dynamic";
 export default async function StationsPage() {
   const stations = await getAllStations();
 
