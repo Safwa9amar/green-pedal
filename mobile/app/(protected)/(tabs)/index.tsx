@@ -25,7 +25,7 @@ export default function WelcomeScreen() {
   const { colors } = useTheme() as GreenRideTheme;
   const { user } = useAuthStore();
   const { location, loading, refresh } = useUserLocation();
-  const { stations } = useBikeStore();
+  const { stations, getUpdates } = useBikeStore();
   const [nearbyStations, setNearbyStations] = useState<BikeStation[]>([]);
   const { setDestination } = useRouteStore();
   const [tip, setTip] = useState("Loading eco tip...");
@@ -87,7 +87,13 @@ export default function WelcomeScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={refresh} />
+        <RefreshControl
+          refreshing={loading}
+          onRefresh={() => {
+            refresh();
+            getUpdates();
+          }}
+        />
       }
       contentContainerStyle={{ paddingBottom: 40 }}
     >
@@ -185,7 +191,7 @@ export default function WelcomeScreen() {
                 distance={`${Math.round(station.distance)} m`}
                 available={station?.bikes?.length}
                 imageSource={{
-                  uri: process.env.EXPO_PUBLIC_SERVER_URL + station.photoUrl,
+                  uri: station.photoUrl,
                 }}
                 onPress={() => {
                   setDestination({

@@ -1,5 +1,12 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { View, StyleSheet, Linking } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Linking,
+  ScrollView,
+  RefreshControl,
+  Button,
+} from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { useBikeStore } from "@/src/store";
 import { useUserLocation } from "@/src/store/useUserLocation";
@@ -9,7 +16,7 @@ import { useSearchParams } from "expo-router/build/hooks";
 import { useFocusEffect } from "expo-router";
 
 export default function HomeScreen() {
-  const { stations } = useBikeStore();
+  const { stations, getUpdates } = useBikeStore();
   const { location: userLocation } = useUserLocation();
   const searchParams = useSearchParams();
   const lat = parseFloat(searchParams.get("lat") as string);
@@ -61,8 +68,22 @@ export default function HomeScreen() {
     getRoute();
   }, [userLocation, destination]);
 
+  // Pull-to-refresh state
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getUpdates();
+    setRefreshing(false);
+  }, [getUpdates]);
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -117,7 +138,7 @@ export default function HomeScreen() {
           }
         }}
       />
-    </View>
+    </ScrollView>
   );
 }
 

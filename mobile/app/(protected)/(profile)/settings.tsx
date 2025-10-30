@@ -18,16 +18,14 @@ import api, { usersAPI } from "@/src/services/api";
 import { useIdCardVerification } from "@/src/hooks/useIdCardVerification";
 
 export default function ProfileSettings() {
-  const { user, setUser, logout } = useAuthStore();
+  const { user, setUser, logout, checkAuth } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
 
   const { uploading, pickFromCamera, pickFromGallery, handleUpload } =
     useIdCardVerification();
 
-  const photoUri =
-    user?.photo && `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}`;
-  const [avatar, setAvatar] = useState(photoUri || user?.avatar || "");
+  const [avatar, setAvatar] = useState(user?.photo || user?.avatar || "");
 
   const {
     register,
@@ -103,6 +101,7 @@ export default function ProfileSettings() {
         "✅ Profile Updated",
         "Your profile was updated successfully!"
       );
+      await checkAuth();
     } catch (err) {
       Alert.alert("❌ Error", "Failed to update profile. Try again later.");
     } finally {

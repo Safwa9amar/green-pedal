@@ -2,12 +2,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getIO } from "@/lib/socket";
-import { uploadImage } from "@/lib/uploadImage";
+import { uploadImageToSupabase } from "@/lib/uploadImageToSupabase";
 import { BikeStation } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-
-// const io = getIO();
 
 // ✅ Get all stations
 export async function getAllStations() {
@@ -22,20 +19,17 @@ export async function getAllStations() {
 
 export async function createStation(formData: FormData) {
   try {
-    // Extract fields
     const name = formData.get("name") as string;
     const capacity = Number(formData.get("capacity"));
     const latitude = Number(formData.get("latitude"));
     const longitude = Number(formData.get("longitude"));
     const photo = formData.get("photo") as File | null;
 
-    // ✅ Upload photo if provided
     let imageUrl: string | null = null;
     if (photo) {
-      imageUrl = await uploadImage(photo, "stations"); // upload to Cloudinary, local, etc.
+      imageUrl = await uploadImageToSupabase(photo, "stations"); // now uploads to Supabase Storage
     }
 
-    // ✅ Create station in DB
     const station = await prisma.bikeStation.create({
       data: {
         name,
@@ -45,6 +39,7 @@ export async function createStation(formData: FormData) {
         photoUrl: imageUrl,
       },
     });
+
     await prisma.file.create({
       data: {
         mimeType: photo?.type.replace("/", "_").toUpperCase() as any,
@@ -54,16 +49,12 @@ export async function createStation(formData: FormData) {
       },
     });
 
-    //  Notify all connected clients
-    // io.emit("stations:update", await getAllStations());
-
     return station;
   } catch (error) {
     console.error("❌ Error creating station:", error);
     throw new Error("Failed to create station");
   }
 }
-
 // ✅ Delete station + notify via socket
 export async function deleteStation(formData: FormData) {
   const id = formData.get("id") as string;

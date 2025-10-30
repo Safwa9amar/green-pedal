@@ -88,7 +88,6 @@ export default function CustomDrawer({ onLogout }: { onLogout: () => void }) {
       setUser({ ...data?.user, photo: `${data?.user?.photo}?v=${Date.now()}` });
     }
   };
-
   return (
     <View
       style={{
@@ -135,7 +134,7 @@ export default function CustomDrawer({ onLogout }: { onLogout: () => void }) {
             source={
               user?.photo
                 ? {
-                    uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}`,
+                    uri: user?.photo,
                     cache: "reload",
                   }
                 : { uri: user?.avatar }

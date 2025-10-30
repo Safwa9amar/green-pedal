@@ -2,6 +2,8 @@ import { View, Text } from "react-native";
 import React, { useEffect } from "react";
 import { Slot, useRouter } from "expo-router";
 import * as Linking from "expo-linking";
+import * as Updates from "expo-updates";
+
 export default function _layout() {
   const router = useRouter();
   useEffect(() => {
@@ -27,5 +29,22 @@ export default function _layout() {
     };
   }, [router]);
 
+  useEffect(() => {
+    const autoUpdate = async () => {
+      try {
+        // 1️⃣ Check for available update
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          // 2️⃣ Download and apply it immediately
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync(); // restarts app to apply new code
+        }
+      } catch (error) {
+        console.log("Auto-update check failed:", error);
+      }
+    };
+
+    autoUpdate();
+  }, []);
   return <Slot />;
 }

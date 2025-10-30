@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function BikesPage() {
   const bikes = await getALlBikes(); // ✅ Safe on server
   const stations = await getAllStations();
+  console.log(bikes);
 
   return (
     <>

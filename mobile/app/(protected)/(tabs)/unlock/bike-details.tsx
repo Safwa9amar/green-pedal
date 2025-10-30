@@ -161,7 +161,7 @@ export default function BikeDetailsScreen() {
       >
         <Image
           source={{
-            uri: `${process.env.EXPO_PUBLIC_SERVER_URL}${bike.photo}`,
+            uri: bike.photo,
             cache: "reload",
           }}
           style={styles.bikeImage}

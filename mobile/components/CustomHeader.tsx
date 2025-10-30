@@ -12,7 +12,7 @@ export function TabsHeader({ navigation, router }) {
           source={
             user?.photo
               ? {
-                  uri: `${process.env.EXPO_PUBLIC_SERVER_URL + user?.photo}`,
+                  uri: user?.photo,
                   cache: "reload",
                 }
               : { uri: user?.avatar }
