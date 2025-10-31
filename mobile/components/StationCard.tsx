@@ -21,7 +21,7 @@ const StationCard: React.FC<StationCardProps> = ({
   return (
     <Card style={styles.card} onPress={onPress} mode="elevated">
       <Card.Cover
-        source={imageSource || require("@/assets/images/bike-station.png")}
+        source={imageSource || require("@/assets/images/logo.png")}
         style={styles.cover}
       />
       <Card.Title

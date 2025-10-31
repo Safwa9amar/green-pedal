@@ -44,3 +44,6 @@ app-example
 mobile/.env
 mobile/.env
 mobile/.env
+android
+*.apk
+
