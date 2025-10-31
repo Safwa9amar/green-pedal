@@ -153,7 +153,7 @@ const LoginScreen = () => {
           }}
           onPress={() => router.push("/forgot-password")}
         >
-          Forgot password?
+          Forgot password? ss
         </Text>
       )}
     </View>

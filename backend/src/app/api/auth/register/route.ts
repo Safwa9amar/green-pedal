@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         confirmationCodeExpires,
       },
     });
-
+    
     // 🔹 Send confirmation email
     let emailSent = true;
     try {

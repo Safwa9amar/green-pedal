@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import React, { useEffect } from "react";
 import { Slot, useRouter } from "expo-router";
 import * as Linking from "expo-linking";
@@ -35,6 +35,7 @@ export default function _layout() {
         // 1️⃣ Check for available update
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
+          Alert.alert("Update available", "A new update is being downloaded.");
           // 2️⃣ Download and apply it immediately
           await Updates.fetchUpdateAsync();
           await Updates.reloadAsync(); // restarts app to apply new code
