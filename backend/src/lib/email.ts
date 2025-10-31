@@ -4,7 +4,8 @@ export async function sendConfirmationEmail(to: string, code: string) {
   // Validate environment variables
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
-  
+  console.log("Sending confirmation email to:", to);
+
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
     console.error("❌ Missing SMTP environment variables.");
     throw new Error("SMTP configuration is incomplete");
