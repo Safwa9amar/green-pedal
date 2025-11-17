@@ -24,7 +24,8 @@ export default function Hero() {
 
         <div className="flex gap-4 items-center">
           <a
-            href="#download"
+            href="https://drive.google.com/drive/folders/1SfkETaJS2wjjEyZPSHUeP73utilmzZPe?usp=drive_link"
+            target="_blank"
             className="inline-flex items-center gap-3 bg-green-600 text-white px-5 py-3 rounded-lg shadow hover:shadow-lg hover:scale-[1.01] transition"
           >
             {/* Download Icon */}
@@ -108,7 +109,13 @@ export default function Hero() {
         <div className="absolute -bottom-6 left-6 w-44 bg-white rounded-xl p-3 shadow-lg hidden md:block">
           <div className="text-xs text-gray-500">Scan to download</div>
           <div className="mt-2 bg-gray-100 p-2 rounded-md flex items-center justify-center">
-            <div className="w-24 h-24 bg-white grid place-items-center">QR</div>
+            <div className="w-24 h-24 bg-white grid place-items-center">
+              <img
+                src="/app-qr-download.png"
+                alt="QR Code"
+                className="w-20 h-20"
+              />
+            </div>
           </div>
         </div>
       </div>
